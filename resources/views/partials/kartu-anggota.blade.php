@@ -1,6 +1,7 @@
 {{-- Kartu anggota: foto 1:1 (object-fit cover), nama, kampus, jurusan, angkatan, divisi, jabatan.
      Ikon Instagram/LinkedIn hanya muncul kalau datanya diisi, dan dibuka di tab baru. --}}
-<article class="kartu flex flex-col overflow-hidden" data-reveal>
+<article @class(['kartu flex flex-col overflow-hidden', 'lebih' => $lebih ?? false]) data-reveal
+    @if ($daftar ?? false) data-item data-cari="{{ \Illuminate\Support\Str::lower($a->nama) }}" data-kampus="{{ $a->kampus_id }}" data-divisi="{{ $a->divisi_id }}" @endif>
     <img src="{{ $a->foto_url }}" alt="Foto {{ $a->nama }}" width="600" height="600" loading="lazy" decoding="async"
          class="aspect-square w-full bg-foto object-cover">
     <div class="flex flex-1 flex-col gap-1 p-3 sm:p-4">
@@ -11,7 +12,7 @@
         ])>{{ $a->jabatan }}</span>
         <h3 class="mt-1 text-base leading-snug font-semibold">{{ $a->nama }}</h3>
         @if ($a->kampus)
-            <a href="{{ route('kampus.show', $a->kampus) }}" class="text-[13px] leading-snug text-redup underline-offset-2 hover:underline">{{ $a->kampus->nama }}</a>
+            <a href="#kampus/{{ $a->kampus->slug }}" data-buka-dialog="dialog-kampus-{{ $a->kampus->id }}" class="text-[13px] leading-snug text-redup underline-offset-2 hover:underline">{{ $a->kampus->nama }}</a>
         @endif
         @if ($a->jurusan || $a->angkatan)
             <span class="text-xs text-redup">{{ collect([$a->jurusan, $a->angkatan ? 'Angkatan '.$a->angkatan : null])->filter()->implode(' · ') }}</span>

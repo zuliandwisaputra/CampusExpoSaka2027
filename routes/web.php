@@ -6,21 +6,26 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Halaman publik (tanpa login)
+| Situs publik: satu halaman (one page)
 |--------------------------------------------------------------------------
+| Semua bagian ada di beranda. Alamat lama tetap berfungsi dan dialihkan ke
+| bagiannya, misalnya /kampus/upi menjadi /#kampus/upi (membuka detail kampus).
 */
 Route::get('/', [Publik\BerandaController::class, 'index'])->name('beranda');
-Route::get('/kampus', [Publik\KampusController::class, 'index'])->name('kampus.index');
-Route::get('/kampus/{kampus}', [Publik\KampusController::class, 'show'])->name('kampus.show');
-Route::get('/anggota', [Publik\AnggotaController::class, 'index'])->name('anggota.index');
-Route::get('/divisi', [Publik\DivisiController::class, 'index'])->name('divisi.index');
-Route::get('/divisi/{divisi}', [Publik\DivisiController::class, 'show'])->name('divisi.show');
-Route::get('/jadwal', [Publik\JadwalController::class, 'index'])->name('jadwal.index');
-Route::get('/pengumuman', [Publik\PengumumanController::class, 'index'])->name('pengumuman.index');
-Route::get('/pengumuman/{pengumuman}', [Publik\PengumumanController::class, 'show'])->name('pengumuman.show');
-Route::get('/galeri', [Publik\GaleriController::class, 'index'])->name('galeri.index');
-Route::get('/galeri/{album}', [Publik\GaleriController::class, 'show'])->name('galeri.show');
-Route::get('/faq', [Publik\FaqController::class, 'index'])->name('faq.index');
+
+Route::controller(Publik\AlihkanController::class)->group(function () {
+    Route::get('/kampus', 'bagian')->defaults('bagian', 'kampus')->name('kampus.index');
+    Route::get('/kampus/{kampus}', 'kampus')->name('kampus.show');
+    Route::get('/anggota', 'bagian')->defaults('bagian', 'anggota')->name('anggota.index');
+    Route::get('/divisi', 'bagian')->defaults('bagian', 'divisi')->name('divisi.index');
+    Route::get('/divisi/{divisi}', 'divisi')->name('divisi.show');
+    Route::get('/jadwal', 'bagian')->defaults('bagian', 'jadwal')->name('jadwal.index');
+    Route::get('/pengumuman', 'bagian')->defaults('bagian', 'pengumuman')->name('pengumuman.index');
+    Route::get('/pengumuman/{pengumuman}', 'pengumuman')->name('pengumuman.show');
+    Route::get('/galeri', 'bagian')->defaults('bagian', 'galeri')->name('galeri.index');
+    Route::get('/galeri/{album}', 'galeri')->name('galeri.show');
+    Route::get('/faq', 'bagian')->defaults('bagian', 'faq')->name('faq.index');
+});
 
 /*
 |--------------------------------------------------------------------------

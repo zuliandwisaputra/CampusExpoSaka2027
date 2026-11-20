@@ -6,13 +6,17 @@ Tampilan memakai **Opsi A · Lanskap** (dipilih panitia), disusun dengan skill U
 
 ## Fitur versi 1
 
-| Halaman publik (tanpa login) | Panel admin (`/admin`) |
+Situs publik berbentuk **one page**: semua bagian ada di satu halaman dan menu di atas langsung menggulir ke bagiannya (menu yang sedang dibaca ikut ditandai). Panel admin tetap per halaman.
+
+| Situs publik (tanpa login, satu halaman) | Panel admin (`/admin`) |
 | --- | --- |
-| Beranda: foto sekolah, hitung mundur, ringkasan angka, 3 pengumuman terbaru, dan lokasi SMAN 1 Kandanghaur (peta Google Maps + petunjuk arah). Setelah acara lewat, hitung mundur diganti foto dokumentasi. | Dashboard dengan penanda data yang belum lengkap |
-| Kampus: cari, filter jenis (PTN, PTS, Politeknik, Kedinasan) dan provinsi | Anggota: tambah, ubah, hapus, cari, filter, upload foto, tampil/sembunyi |
-| Detail kampus: profil, jurusan, jalur masuk, biaya, beasiswa, link resmi, alumni, tombol bagikan ke WhatsApp | Kampus dan jurusan |
-| Anggota: kartu dengan ikon Instagram/LinkedIn (muncul hanya kalau diisi) | Divisi, Jadwal, Pengumuman (draf/terbit, sematkan), Galeri (upload banyak foto), FAQ |
-| Divisi, Jadwal, Pengumuman, Galeri, FAQ | Pengaturan acara dan Akun admin (khusus super admin) |
+| Beranda: foto sekolah, hitung mundur, ringkasan angka. Setelah acara lewat, hitung mundur diganti foto dokumentasi. | Dashboard dengan penanda data yang belum lengkap |
+| Pengumuman: 3 terbaru, sisanya lewat tombol "Lihat pengumuman lainnya"; isi lengkap terbuka di pop-up | Anggota: tambah, ubah, hapus, cari, filter, upload foto, tampil/sembunyi |
+| Kampus: cari, filter jenis (PTN, PTS, Politeknik, Kedinasan) dan provinsi tanpa memuat ulang halaman. Ketuk kartu untuk membuka detail di pop-up: profil, jurusan, jalur masuk, biaya, beasiswa, link resmi, alumni, tombol bagikan ke WhatsApp | Kampus dan jurusan |
+| Anggota: cari, filter kampus dan divisi; kartu dengan ikon Instagram/LinkedIn (muncul hanya kalau diisi) | Divisi, Jadwal, Pengumuman (draf/terbit, sematkan), Galeri (upload banyak foto), FAQ |
+| Divisi (tombol "Lihat anggota divisi" langsung menyaring daftar anggota), Jadwal, Galeri, FAQ, dan Lokasi SMAN 1 Kandanghaur (peta Google Maps + petunjuk arah) | Pengaturan acara dan Akun admin (khusus super admin) |
+
+Pop-up punya alamat sendiri, jadi bisa dibagikan: `/#kampus/politeknik-negeri-indramayu` langsung membuka detail Polindra, `/#pengumuman/<slug>` membuka pengumumannya. Alamat lama seperti `/kampus`, `/kampus/<slug>`, `/anggota`, atau `/faq` otomatis dialihkan ke bagian yang sama di halaman utama, jadi link yang sudah tersebar tetap jalan.
 
 ### Hak akses dua role
 
@@ -84,7 +88,7 @@ Buka `http://localhost:8000` untuk situs dan `http://localhost:8000/admin` untuk
 - Pengaturan acara, pengumuman susunan panitia, FAQ dasar, dan 2 album galeri berisi foto dummy.
 - Akun super admin dari `.env`.
 
-Rundown belum diisi karena jam acara belum diputuskan. Untuk mencoba tampilan halaman Jadwal di komputer lokal saja:
+Rundown belum diisi karena jam acara belum diputuskan. Untuk mencoba tampilan bagian Jadwal di komputer lokal saja:
 
 ```bash
 php artisan db:seed --class=JadwalContohSeeder
@@ -159,7 +163,7 @@ Setiap kali mengubah file `.env` atau kode di server, jalankan ulang perintah ca
 php artisan test
 ```
 
-Tes memeriksa semua halaman publik, bagian lokasi, privasi (nomor HP tidak tampil, anggota tersembunyi tidak muncul), escape isi pengumuman, dua role dan batasannya, batas percobaan login, validasi Instagram/LinkedIn/foto (sampai 7 MB), kompres foto ke WebP, dan thumbnail galeri.
+Tes memeriksa semua bagian di halaman one page, pengalihan alamat lama, pop-up detail kampus, bagian lokasi, privasi (nomor HP tidak tampil, anggota tersembunyi tidak muncul), escape isi pengumuman, dua role dan batasannya, batas percobaan login, validasi Instagram/LinkedIn/foto (sampai 7 MB), kompres foto ke WebP, dan thumbnail galeri.
 
 ## Masih perlu diputuskan panitia
 

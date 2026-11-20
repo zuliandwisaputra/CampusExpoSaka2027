@@ -52,6 +52,13 @@ function setupMenus() {
             button.setAttribute('aria-expanded', String(!open));
             panel.hidden = open;
         });
+
+        panel.querySelectorAll('[data-tutup-menu]').forEach((link) => {
+            link.addEventListener('click', () => {
+                button.setAttribute('aria-expanded', 'false');
+                panel.hidden = true;
+            });
+        });
     });
 }
 
@@ -190,7 +197,178 @@ function setupPeta() {
     });
 }
 
+// Daftar yang bisa dicari dan disaring tanpa memuat ulang halaman (kampus, anggota, galeri, pengumuman).
+// Struktur: [data-daftar] berisi [data-item], kontrol [data-saring]/[data-saring-chip],
+// tombol [data-tampil-lebih], teks [data-jumlah], keadaan kosong [data-kosong], dan [data-reset].
+function setupDaftar() {
+    document.querySelectorAll('[data-daftar]').forEach((root) => {
+        const items = [...root.querySelectorAll('[data-item]')];
+        const awal = parseInt(root.dataset.awal || '0', 10) || items.length;
+        const tambah = parseInt(root.dataset.tambah || '0', 10);
+        const satuan = root.dataset.satuan || '';
+        const tombolLebih = root.querySelector('[data-tampil-lebih]');
+        const jumlah = root.querySelector('[data-jumlah]');
+        const kosong = root.querySelector('[data-kosong]');
+        const reset = root.querySelector('[data-reset]');
+        const saring = {};
+        let batas = awal;
+
+        const cocok = (item) => Object.entries(saring).every(([kunci, nilai]) => {
+            if (!nilai) return true;
+            if (kunci === 'cari') return (item.dataset.cari || '').includes(nilai);
+            return item.dataset[kunci] === nilai;
+        });
+
+        const tampilkan = () => {
+            const aktif = Object.values(saring).some(Boolean);
+            const hasil = items.filter(cocok);
+            const terlihat = new Set(aktif ? hasil : hasil.slice(0, batas));
+            items.forEach((item) => {
+                item.hidden = !terlihat.has(item);
+                item.classList.remove('lebih');
+            });
+            if (jumlah) jumlah.textContent = `${hasil.length} ${satuan}`.trim();
+            if (kosong) kosong.hidden = hasil.length > 0;
+            if (tombolLebih) tombolLebih.hidden = aktif || batas >= hasil.length;
+            if (reset) reset.hidden = !aktif;
+        };
+
+        root.querySelectorAll('[data-saring]').forEach((el) => {
+            const kunci = el.dataset.saring;
+            el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', () => {
+                saring[kunci] = kunci === 'cari' ? el.value.trim().toLowerCase() : el.value;
+                tampilkan();
+            });
+        });
+
+        const chips = [...root.querySelectorAll('[data-saring-chip]')];
+        const aktifkanChip = (kunci, nilai) => chips
+            .filter((c) => c.dataset.saringChip === kunci)
+            .forEach((c) => {
+                const pilih = c.dataset.nilai === nilai;
+                c.classList.toggle('chip-aktif', pilih);
+                c.setAttribute('aria-pressed', String(pilih));
+            });
+        chips.forEach((chip) => {
+            chip.addEventListener('click', () => {
+                saring[chip.dataset.saringChip] = chip.dataset.nilai;
+                aktifkanChip(chip.dataset.saringChip, chip.dataset.nilai);
+                tampilkan();
+            });
+        });
+
+        tombolLebih?.addEventListener('click', () => {
+            batas = tambah > 0 ? batas + tambah : items.length;
+            tampilkan();
+        });
+
+        reset?.addEventListener('click', () => {
+            Object.keys(saring).forEach((k) => delete saring[k]);
+            root.querySelectorAll('[data-saring]').forEach((el) => { el.value = ''; });
+            [...new Set(chips.map((c) => c.dataset.saringChip))].forEach((k) => aktifkanChip(k, ''));
+            tampilkan();
+        });
+
+        // Dipakai tombol "Lihat anggota divisi" untuk menyaring dari bagian lain.
+        root.saringDari = (kunci, nilai) => {
+            saring[kunci] = String(nilai);
+            const el = root.querySelector(`[data-saring="${kunci}"]`);
+            if (el) el.value = String(nilai);
+            tampilkan();
+        };
+
+        tampilkan();
+    });
+
+    document.querySelectorAll('[data-pilih-divisi]').forEach((tombol) => {
+        tombol.addEventListener('click', () => {
+            document.querySelector('[data-daftar="anggota"]')?.saringDari('divisi', tombol.dataset.pilihDivisi);
+        });
+    });
+}
+
+// Pop-up detail kampus dan pengumuman. Alamat #kampus/{slug} atau #pengumuman/{slug} langsung membukanya.
+function setupDialog() {
+    const buka = (dialog, perbaruiAlamat = true) => {
+        if (!dialog || dialog.open) return;
+        document.querySelectorAll('dialog[open]').forEach((d) => d.close());
+        dialog.showModal();
+        if (perbaruiAlamat && dialog.dataset.hash) history.replaceState(null, '', `#${dialog.dataset.hash}`);
+    };
+
+    document.addEventListener('click', (event) => {
+        const pemicu = event.target.closest('[data-buka-dialog]');
+        if (pemicu) {
+            const dialog = document.getElementById(pemicu.dataset.bukaDialog);
+            if (dialog) {
+                event.preventDefault();
+                buka(dialog);
+            }
+            return;
+        }
+        if (event.target.closest('[data-tutup-dialog]')) event.target.closest('dialog')?.close();
+    });
+
+    document.querySelectorAll('dialog.dialog').forEach((dialog) => {
+        // Ketuk area gelap di luar pop-up untuk menutup.
+        dialog.addEventListener('click', (event) => {
+            if (event.target === dialog) dialog.close();
+        });
+        dialog.addEventListener('close', () => {
+            if (decodeURIComponent(location.hash) === `#${dialog.dataset.hash}`) {
+                history.replaceState(null, '', `#${dialog.dataset.hash.split('/')[0]}`);
+            }
+        });
+    });
+
+    const dariAlamat = () => {
+        const hash = decodeURIComponent(location.hash.slice(1));
+        if (!hash.includes('/')) return;
+        const dialog = [...document.querySelectorAll('dialog[data-hash]')].find((d) => d.dataset.hash === hash);
+        if (!dialog) return;
+        document.getElementById(hash.split('/')[0])?.scrollIntoView();
+        buka(dialog, false);
+    };
+    dariAlamat();
+    window.addEventListener('hashchange', dariAlamat);
+}
+
+// Menu header menandai bagian yang sedang dibaca saat halaman di-scroll.
+function setupScrollspy() {
+    const tautan = [...document.querySelectorAll('[data-nav]')];
+    const bagian = [...new Set(tautan.map((t) => t.dataset.nav))].map((id) => document.getElementById(id)).filter(Boolean);
+    if (!bagian.length) return;
+
+    // Bagian aktif = bagian terakhir yang bagian atasnya sudah melewati 35% layar.
+    // Di dasar halaman, bagian terakhir (lokasi) yang aktif walau tingginya pendek.
+    let aktif = null;
+    let antre = false;
+    const perbarui = () => {
+        antre = false;
+        const batas = window.innerHeight * 0.35;
+        let id = bagian[0].id;
+        bagian.forEach((b) => {
+            if (b.getBoundingClientRect().top <= batas) id = b.id;
+        });
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) id = bagian[bagian.length - 1].id;
+        if (id === aktif) return;
+        aktif = id;
+        tautan.forEach((t) => t.setAttribute('aria-current', String(t.dataset.nav === id)));
+    };
+    const jadwalkan = () => {
+        if (antre) return;
+        antre = true;
+        requestAnimationFrame(perbarui);
+    };
+    window.addEventListener('scroll', jadwalkan, { passive: true });
+    window.addEventListener('resize', jadwalkan);
+    perbarui();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    setupDaftar();
+    setupDialog();
+    setupScrollspy();
     setupReveal();
     setupParalaks();
     setupHeader();

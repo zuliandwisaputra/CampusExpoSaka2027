@@ -269,6 +269,6 @@ class AdminAksesTest extends TestCase
         $this->assertSame(3, $kampus->jurusan()->count());
         $this->assertDatabaseHas('jurusan', ['kampus_id' => $kampus->id, 'jenjang' => 'D4', 'nama' => 'Rekayasa Perangkat Lunak']);
 
-        $this->get("/kampus/{$kampus->slug}")->assertSee('Rekayasa Perangkat Lunak');
+        $this->get('/')->assertSee('Rekayasa Perangkat Lunak');
     }
 }

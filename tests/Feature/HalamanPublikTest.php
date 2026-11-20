@@ -23,15 +23,27 @@ class HalamanPublikTest extends TestCase
         Pengaturan::lupakan();
     }
 
-    public function test_semua_halaman_publik_bisa_dibuka_tanpa_login(): void
+    public function test_situs_one_page_memuat_semua_bagian(): void
+    {
+        $response = $this->get('/')->assertOk();
+
+        foreach (['beranda', 'pengumuman', 'kampus', 'anggota', 'divisi', 'jadwal', 'galeri', 'faq', 'lokasi'] as $id) {
+            $response->assertSee('id="'.$id.'"', false)->assertSee('href="#'.$id.'"', false);
+        }
+    }
+
+    public function test_alamat_lama_dialihkan_ke_bagiannya(): void
     {
         $kampus = Kampus::where('singkatan', 'UPI')->first();
         $pengumuman = Pengumuman::first();
 
-        foreach (['/', '/kampus', "/kampus/{$kampus->slug}", '/anggota', '/divisi', '/divisi/acara', '/jadwal',
-            '/pengumuman', "/pengumuman/{$pengumuman->slug}", '/galeri', '/galeri/persiapan-panitia', '/faq'] as $url) {
-            $this->get($url)->assertOk();
+        foreach (['/kampus' => 'kampus', '/anggota' => 'anggota', '/divisi' => 'divisi', '/divisi/acara' => 'divisi',
+            '/jadwal' => 'jadwal', '/pengumuman' => 'pengumuman', '/galeri' => 'galeri', '/faq' => 'faq'] as $lama => $bagian) {
+            $this->get($lama)->assertRedirect(url('/').'#'.$bagian);
         }
+
+        $this->get('/kampus/'.$kampus->slug)->assertRedirect(url('/').'#kampus/'.$kampus->slug);
+        $this->get('/pengumuman/'.$pengumuman->slug)->assertRedirect(url('/').'#pengumuman/'.$pengumuman->slug);
     }
 
     public function test_data_panitia_dari_pdf_lengkap(): void
@@ -40,65 +52,73 @@ class HalamanPublikTest extends TestCase
         $this->assertSame(31, Kampus::count());
         $this->assertSame(6, Anggota::where('jabatan', 'Ketua Divisi')->count());
 
-        $this->get('/')->assertSee('83')->assertSee('31')->assertSee('Explore the');
+        $this->get('/')
+            ->assertSee('data-hitung="83"', false)
+            ->assertSee('data-hitung="31"', false)
+            ->assertSee('Zulian Dwi Saputra')
+            ->assertSee('Explore the');
+    }
+
+    public function test_detail_kampus_ada_di_pop_up(): void
+    {
+        $kampus = Kampus::where('singkatan', 'Polindra')->first();
+
+        $this->get('/')
+            ->assertSee('data-hash="kampus/'.$kampus->slug.'"', false)
+            ->assertSee('data-buka-dialog="dialog-kampus-'.$kampus->id.'"', false)
+            ->assertSee('Alumni yang bisa kamu tanyai (9)');
+    }
+
+    public function test_daftar_bisa_disaring_tanpa_memuat_ulang(): void
+    {
+        $this->get('/')
+            ->assertSee('data-saring="cari"', false)
+            ->assertSee('data-saring-chip="jenis"', false)
+            ->assertSee('data-jenis="politeknik"', false)
+            ->assertSee('data-saring="divisi"', false);
     }
 
     public function test_anggota_yang_disembunyikan_tidak_tampil(): void
     {
-        $anggota = Anggota::where('nama', 'Zulian Dwi Saputra')->first();
-        $this->get('/anggota?q=zulian')->assertSee('Zulian Dwi Saputra');
+        $this->get('/')->assertSee('Zulian Dwi Saputra');
 
-        $anggota->update(['ditampilkan' => false]);
+        Anggota::where('nama', 'Zulian Dwi Saputra')->first()->update(['ditampilkan' => false]);
 
-        $this->get('/anggota?q=zulian')->assertDontSee('Zulian Dwi Saputra');
-        $this->get('/kampus/'.$anggota->kampus->slug)->assertDontSee('Zulian Dwi Saputra');
-        $this->get('/divisi/logistik')->assertDontSee('Zulian Dwi Saputra');
+        $this->get('/')->assertDontSee('Zulian Dwi Saputra');
     }
 
     public function test_nomor_hp_tidak_pernah_tampil_di_halaman_publik(): void
     {
-        $anggota = Anggota::where('nama', 'Nayla Putri Amelia')->first();
-        $anggota->update(['no_hp' => '081299990000']);
+        Anggota::where('nama', 'Nayla Putri Amelia')->first()->update(['no_hp' => '081299990000']);
 
-        foreach (['/', '/anggota', '/divisi', '/divisi/acara', '/kampus/'.$anggota->kampus->slug] as $url) {
-            $this->get($url)->assertDontSee('081299990000');
-        }
+        $this->get('/')->assertDontSee('081299990000');
     }
 
     public function test_ikon_media_sosial_hanya_muncul_kalau_diisi_dan_dibuka_di_tab_baru(): void
     {
-        $this->get('/anggota?q=nayla')->assertDontSee('instagram.com/nayla', false);
+        $this->get('/')->assertDontSee('instagram.com/nayla', false);
 
         Anggota::where('nama', 'Nayla Putri Amelia')->first()
             ->update(['instagram' => 'nayla.putri', 'linkedin' => 'https://www.linkedin.com/in/nayla']);
 
-        $this->get('/anggota?q=nayla')
+        $this->get('/')
             ->assertSee('href="https://www.instagram.com/nayla.putri/" target="_blank" rel="noopener noreferrer"', false)
             ->assertSee('href="https://www.linkedin.com/in/nayla" target="_blank" rel="noopener noreferrer"', false);
     }
 
-    public function test_filter_dan_pencarian_kampus(): void
-    {
-        $this->get('/kampus?jenis=politeknik')
-            ->assertSee('Politeknik Negeri Indramayu')
-            ->assertDontSee('Universitas Padjadjaran');
-
-        $this->get('/kampus?q=soedirman')->assertSee('Universitas Jenderal Soedirman')->assertSee('1 kampus ditemukan');
-    }
-
-    public function test_pengumuman_draf_tidak_bisa_dibuka_publik(): void
+    public function test_pengumuman_draf_tidak_tampil(): void
     {
         $draf = Pengumuman::create(['judul' => 'Rahasia panitia', 'isi' => 'Belum boleh tahu.', 'status' => 'draf']);
 
-        $this->get('/pengumuman')->assertDontSee('Rahasia panitia');
+        $this->get('/')->assertDontSee('Rahasia panitia');
         $this->get('/pengumuman/'.$draf->slug)->assertNotFound();
     }
 
     public function test_isi_pengumuman_di_escape(): void
     {
-        $p = Pengumuman::create(['judul' => 'Uji', 'isi' => '<script>alert(1)</script>', 'status' => 'terbit']);
+        Pengumuman::create(['judul' => 'Uji', 'isi' => '<script>alert(1)</script>', 'status' => 'terbit']);
 
-        $this->get('/pengumuman/'.$p->slug)
+        $this->get('/')
             ->assertDontSee('<script>alert(1)</script>', false)
             ->assertSee('&lt;script&gt;', false);
     }
@@ -115,7 +135,6 @@ class HalamanPublikTest extends TestCase
     public function test_beranda_menampilkan_lokasi_dengan_peta_yang_dimuat_saat_diketuk(): void
     {
         $html = $this->get('/')
-            ->assertSee('id="lokasi"', false)
             ->assertSee('Jl. Pantura Karanganyar')
             ->assertSee('https://www.google.com/maps/dir/?api=1&amp;destination=', false)
             ->assertSee('data-peta-muat', false)
