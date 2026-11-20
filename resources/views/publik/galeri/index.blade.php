@@ -20,7 +20,7 @@
                 </div>
                 <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
                     @foreach ($item->foto->take(6) as $foto)
-                        <a href="{{ $foto->url }}" target="_blank" rel="noopener" class="block overflow-hidden rounded-xl">
+                        <a href="{{ $foto->url }}" target="_blank" rel="noopener" class="block overflow-hidden rounded-xl" data-reveal>
                             <img src="{{ $foto->thumb_url }}" alt="{{ $foto->keterangan ?: 'Foto '.$item->judul }}" width="600" height="450" loading="lazy" decoding="async"
                                  class="aspect-[4/3] w-full bg-foto object-cover transition-opacity duration-200 hover:opacity-90">
                         </a>

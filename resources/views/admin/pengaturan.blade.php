@@ -11,7 +11,7 @@
 
         <x-admin.foto name="foto_beranda" label="Foto sekolah untuk beranda" :url="\App\Models\Pengaturan::fotoBerandaUrl()" :dummy="\App\Support\Media::isDummy($p['foto_beranda'] ?? null)"
                       hapus="hapus_foto_beranda" rasio="aspect-video" lebar="w-full sm:w-72"
-                      help="Rasio 16:9, misalnya 1920 × 1080 px, maksimal 2 MB. Di HP sisi kiri dan kanan terpotong, jadi letakkan objek utama di tengah." />
+                      help="Rasio 16:9, misalnya 1920 × 1080 px, maksimal {{ \App\Support\ImageUploader::batasMb() }} MB. Di HP sisi kiri dan kanan terpotong, jadi letakkan objek utama di tengah." />
 
         <x-admin.input name="nama_acara" label="Nama acara" :value="$p['nama_acara']" required maxlength="150" />
         <x-admin.input name="tagline" label="Tagline" :value="$p['tagline']" maxlength="150" />
@@ -29,6 +29,11 @@
             <x-admin.input name="penyelenggara" label="Penyelenggara" :value="$p['penyelenggara']" maxlength="150" />
         </div>
         <x-admin.input name="alamat" label="Alamat lengkap" :value="$p['alamat']" maxlength="255" />
+        <div class="flex flex-col gap-2">
+            <x-admin.input name="peta_lokasi" label="Lokasi di Google Maps" :value="$p['peta_lokasi']" required maxlength="200"
+                           help="Isi nama tempat seperti yang muncul di Google Maps, atau koordinat supaya lebih tepat (format: -6.123456, 108.123456). Di Google Maps, tekan lama titik sekolah untuk menyalin koordinatnya." />
+            <a href="{{ \App\Models\Pengaturan::petaUrl() }}" target="_blank" rel="noopener noreferrer" class="inline-flex min-h-10 items-center gap-1.5 self-start text-sm font-semibold text-zaitun hover:underline"><x-ikon name="luar" class="size-4" /> Cek lokasi tersimpan di Google Maps</a>
+        </div>
 
         <div class="grid gap-4 sm:grid-cols-2">
             <x-admin.input name="instagram" label="Instagram panitia" :value="$p['instagram']" maxlength="30" help="Username saja, tanpa @." />

@@ -43,7 +43,7 @@ class KampusController extends Controller
         $data = $this->validated($request);
 
         if ($request->hasFile('logo')) {
-            $data['logo'] = ImageUploader::store($request->file('logo'), 'logo', 'logo');
+            $data['logo'] = ImageUploader::store($request->file('logo'), 'logo', 'logo', field: 'logo');
         }
 
         $kampus = DB::transaction(function () use ($data, $request) {
@@ -71,7 +71,7 @@ class KampusController extends Controller
 
         if ($request->hasFile('logo')) {
             Media::delete($kampus->logo);
-            $data['logo'] = ImageUploader::store($request->file('logo'), 'logo', 'logo');
+            $data['logo'] = ImageUploader::store($request->file('logo'), 'logo', 'logo', field: 'logo');
         } elseif ($request->boolean('hapus_logo')) {
             Media::delete($kampus->logo);
             $data['logo'] = null;
@@ -112,7 +112,7 @@ class KampusController extends Controller
             'website' => ['nullable', 'url:https,http', 'max:255'],
             'instagram' => ['nullable', 'string', 'max:30', 'regex:/^[A-Za-z0-9._]+$/'],
             'jurusan' => ['nullable', 'string', 'max:10000'],
-            'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:'.config('campus.upload_max_kb')],
         ]);
 
         unset($data['jurusan'], $data['logo']);

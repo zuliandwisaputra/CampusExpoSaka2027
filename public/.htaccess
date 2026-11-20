@@ -23,3 +23,11 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# Batas upload untuk Apache dengan modul PHP (misalnya Laragon). Hosting FastCGI memakai public/.user.ini.
+<IfModule php_module>
+    php_value upload_max_filesize 8M
+    php_value post_max_size 80M
+    php_value memory_limit 512M
+    php_value max_execution_time 120
+</IfModule>

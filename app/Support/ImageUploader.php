@@ -5,6 +5,7 @@ namespace App\Support;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use RuntimeException;
 
 /**
@@ -23,10 +24,26 @@ class ImageUploader
         'galeri_thumb' => [600, 450],
     ];
 
-    public static function store(UploadedFile $file, string $folder, string $size, int $quality = 80): string
+    /** Foto di atas ini (megapiksel) ditolak supaya memori server tidak habis saat diolah. */
+    public const MAKS_MEGAPIKSEL = 50;
+
+    public static function batasMb(): int
+    {
+        return (int) round(config('campus.upload_max_kb', 7168) / 1024);
+    }
+
+    /**
+     * @param  string  $field  nama kolom formulir, untuk menampilkan pesan galat di dekatnya
+     */
+    public static function store(UploadedFile $file, string $folder, string $size, int $quality = 80, string $field = 'foto'): string
     {
         [$maxWidth, $maxHeight] = self::SIZES[$size];
-        $source = self::load($file);
+
+        try {
+            $source = self::load($file);
+        } catch (RuntimeException $e) {
+            throw ValidationException::withMessages([$field => $e->getMessage()]);
+        }
 
         $path = trim($folder, '/').'/'.Str::random(32).'.webp';
         Storage::disk('public')->put($path, self::encode($source, $maxWidth, $maxHeight, $quality));
@@ -58,6 +75,18 @@ class ImageUploader
 
     private static function load(UploadedFile $file): \GdImage
     {
+        $info = @getimagesize($file->getRealPath());
+        if ($info === false) {
+            throw new RuntimeException('File bukan gambar yang valid.');
+        }
+
+        if (self::MAKS_MEGAPIKSEL * 1_000_000 < $info[0] * $info[1]) {
+            throw new RuntimeException('Resolusi foto terlalu besar. Perkecil dulu, maksimal '.self::MAKS_MEGAPIKSEL.' megapiksel.');
+        }
+
+        // Foto 7 MB dari kamera HP bisa butuh ratusan MB memori saat dibuka GD.
+        self::naikkanBatasMemori('512M');
+
         $data = file_get_contents($file->getRealPath());
         $image = $data === false ? false : @imagecreatefromstring($data);
 
@@ -88,6 +117,18 @@ class ImageUploader
         imagedestroy($canvas);
 
         return $binary;
+    }
+
+    private static function naikkanBatasMemori(string $target): void
+    {
+        $sekarang = ini_get('memory_limit');
+        $keByte = fn (string $v) => $v === '-1' ? PHP_INT_MAX : (int) $v * match (strtoupper(substr($v, -1))) {
+            'G' => 1024 ** 3, 'M' => 1024 ** 2, 'K' => 1024, default => 1,
+        };
+
+        if ($sekarang !== false && $keByte($sekarang) < $keByte($target)) {
+            @ini_set('memory_limit', $target);
+        }
     }
 
     /** Foto dari HP sering tersimpan miring; putar sesuai data EXIF bila tersedia. */

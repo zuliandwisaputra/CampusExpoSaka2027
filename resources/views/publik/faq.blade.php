@@ -8,7 +8,7 @@
 
     <div class="wadah flex max-w-3xl flex-col gap-2 py-6">
         @forelse ($faq as $item)
-            <details class="kartu group" @if ($loop->first) open @endif>
+            <details class="kartu group" data-reveal @if ($loop->first) open @endif>
                 <summary class="flex min-h-14 list-none items-center justify-between gap-3 px-4 py-3 font-semibold [&::-webkit-details-marker]:hidden">
                     <span>{{ $item->pertanyaan }}</span>
                     <x-ikon name="kanan" class="size-5 shrink-0 text-redup transition-transform duration-200 group-open:rotate-90" />

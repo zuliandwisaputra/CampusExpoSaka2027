@@ -51,8 +51,8 @@ class GaleriController extends Controller
     public function upload(Request $request, Album $item): RedirectResponse
     {
         $request->validate([
-            'foto' => ['required', 'array', 'max:20'],
-            'foto.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'foto' => ['required', 'array', 'max:'.config('campus.galeri_maks_per_unggah')],
+            'foto.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:'.config('campus.upload_max_kb')],
             'keterangan' => ['nullable', 'string', 'max:255'],
         ]);
 

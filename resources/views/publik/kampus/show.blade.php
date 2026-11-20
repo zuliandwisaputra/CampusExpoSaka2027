@@ -15,8 +15,8 @@
 @section('isi')
     <section class="border-b border-garis bg-krem-tua/60">
         <div class="wadah flex flex-col gap-4 py-8 sm:flex-row sm:items-center sm:gap-6">
-            <img src="{{ $kampus->logo_url }}" alt="Logo {{ $kampus->nama }}" width="400" height="400" class="size-24 rounded-2xl border border-garis bg-white object-contain p-2 sm:size-28">
-            <div class="flex flex-col gap-2">
+            <img src="{{ $kampus->logo_url }}" alt="Logo {{ $kampus->nama }}" width="400" height="400" style="--urut: 0" class="animasi-masuk size-24 rounded-2xl border border-garis bg-white object-contain p-2 sm:size-28">
+            <div style="--urut: 1" class="animasi-masuk flex flex-col gap-2">
                 <a href="{{ route('kampus.index') }}" class="inline-flex items-center gap-1 text-sm font-semibold text-zaitun hover:underline"><x-ikon name="kiri" class="size-4" /> Semua kampus</a>
                 <h1 class="font-serif text-3xl leading-tight font-semibold sm:text-4xl">{{ $kampus->nama }}</h1>
                 <p class="text-sm text-redup">
@@ -29,14 +29,14 @@
 
     <div class="wadah grid gap-8 py-8 lg:grid-cols-[1fr_320px]">
         <div class="flex flex-col gap-6">
-            <section class="kartu p-5" aria-labelledby="profil">
+            <section class="kartu p-5" data-reveal aria-labelledby="profil">
                 <h2 id="profil" class="font-serif text-xl font-semibold">Profil singkat</h2>
                 <div class="isi-teks mt-3 text-[15px] text-tinta">
                     @if ($kampus->deskripsi) {{ \App\Support\Teks::paragraf($kampus->deskripsi) }} @else <p class="text-redup">{{ $belumDiisi }}</p> @endif
                 </div>
             </section>
 
-            <section class="kartu p-5" aria-labelledby="jurusan">
+            <section class="kartu p-5" data-reveal aria-labelledby="jurusan">
                 <h2 id="jurusan" class="font-serif text-xl font-semibold">Jurusan</h2>
                 @if ($kampus->jurusan->isEmpty())
                     <p class="mt-3 text-[15px] text-redup">{{ $belumDiisi }}</p>
@@ -57,7 +57,7 @@
             </section>
 
             @foreach (['jalur_masuk' => 'Jalur masuk', 'kisaran_biaya' => 'Kisaran biaya kuliah', 'beasiswa' => 'Info beasiswa'] as $kolom => $judul)
-                <section class="kartu p-5" aria-labelledby="{{ $kolom }}">
+                <section class="kartu p-5" data-reveal aria-labelledby="{{ $kolom }}">
                     <h2 id="{{ $kolom }}" class="font-serif text-xl font-semibold">{{ $judul }}</h2>
                     <div class="isi-teks mt-3 text-[15px]">
                         @if ($kampus->$kolom) {{ \App\Support\Teks::paragraf($kampus->$kolom) }} @else <p class="text-redup">{{ $belumDiisi }}</p> @endif
@@ -67,7 +67,7 @@
         </div>
 
         <aside class="flex flex-col gap-4">
-            <div class="kartu flex flex-col gap-2 p-5">
+            <div class="kartu flex flex-col gap-2 p-5" data-reveal>
                 <h2 class="font-serif text-xl font-semibold">Link resmi</h2>
                 @if ($kampus->website)
                     <a href="{{ $kampus->website }}" target="_blank" rel="noopener noreferrer" class="tombol-garis justify-start"><x-ikon name="web" /> Website resmi</a>

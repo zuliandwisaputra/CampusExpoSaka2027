@@ -8,7 +8,7 @@ Tampilan memakai **Opsi A · Lanskap** (dipilih panitia), disusun dengan skill U
 
 | Halaman publik (tanpa login) | Panel admin (`/admin`) |
 | --- | --- |
-| Beranda: foto sekolah, hitung mundur, ringkasan angka, 3 pengumuman terbaru. Setelah acara lewat, hitung mundur diganti foto dokumentasi. | Dashboard dengan penanda data yang belum lengkap |
+| Beranda: foto sekolah, hitung mundur, ringkasan angka, 3 pengumuman terbaru, dan lokasi SMAN 1 Kandanghaur (peta Google Maps + petunjuk arah). Setelah acara lewat, hitung mundur diganti foto dokumentasi. | Dashboard dengan penanda data yang belum lengkap |
 | Kampus: cari, filter jenis (PTN, PTS, Politeknik, Kedinasan) dan provinsi | Anggota: tambah, ubah, hapus, cari, filter, upload foto, tampil/sembunyi |
 | Detail kampus: profil, jurusan, jalur masuk, biaya, beasiswa, link resmi, alumni, tombol bagikan ke WhatsApp | Kampus dan jurusan |
 | Anggota: kartu dengan ikon Instagram/LinkedIn (muncul hanya kalau diisi) | Divisi, Jadwal, Pengumuman (draf/terbit, sematkan), Galeri (upload banyak foto), FAQ |
@@ -30,6 +30,7 @@ Tampilan memakai **Opsi A · Lanskap** (dipilih panitia), disusun dengan skill U
 - Blade + Tailwind CSS 4 via Vite, font di-host sendiri (tidak bergantung Google Fonts saat hari H)
 - Foto dikecilkan dan dikompres ke WebP saat upload memakai ekstensi GD bawaan PHP
 - Data halaman publik di-cache dan otomatis segar setiap kali admin mengubah data
+- Animasi masuk dan animasi saat scrolling yang ringan, otomatis mati kalau HP pengunjung memakai mode "kurangi gerakan"
 
 ## Menjalankan di komputer sendiri
 
@@ -103,6 +104,19 @@ Semua tempat gambar memakai foto dummy di `public/images/dummy/` sampai foto asl
 
 Untuk mengganti `pratinjau-link.jpg` dengan desain asli, timpa file itu dengan gambar 1200 × 630 px.
 
+### Batas upload foto 7 MB
+
+Satu foto boleh sampai 7 MB (galeri maksimal 10 foto sekali unggah). Setelah diunggah, foto otomatis dikecilkan dan dikompres ke WebP, jadi yang tersimpan tetap kecil. Batas bawaan PHP biasanya hanya 2 MB, jadi project ini sudah menyertakan:
+
+- `public/.htaccess` untuk Apache dengan modul PHP (misalnya **Laragon**), langsung berlaku tanpa pengaturan tambahan.
+- `public/.user.ini` untuk hosting FastCGI/LiteSpeed (kebanyakan shared hosting). Perubahan bisa butuh sampai 5 menit untuk berlaku.
+
+Kalau upload foto besar masih gagal, ubah langsung `php.ini` (di Laragon: menu **PHP → php.ini**; di cPanel: **Select PHP Version → Options** atau **MultiPHP INI Editor**) menjadi `upload_max_filesize = 8M`, `post_max_size = 80M`, `memory_limit = 512M`, lalu restart.
+
+### Lokasi di Google Maps
+
+Peta di beranda memakai isian **Lokasi di Google Maps** pada menu Pengaturan acara. Supaya titiknya tepat, isi dengan koordinat sekolah (di Google Maps, tekan lama titik SMAN 1 Kandanghaur lalu salin angkanya). Peta baru dimuat saat pengunjung mengetuk "Tampilkan peta interaktif", jadi beranda tetap ringan.
+
 ## Pasang di shared hosting
 
 1. Pastikan hosting menyediakan **PHP 8.3**, MySQL/MariaDB, ekstensi GD, dan SSL. Akses SSH/terminal sangat membantu.
@@ -145,11 +159,12 @@ Setiap kali mengubah file `.env` atau kode di server, jalankan ulang perintah ca
 php artisan test
 ```
 
-Tes memeriksa semua halaman publik, privasi (nomor HP tidak tampil, anggota tersembunyi tidak muncul), escape isi pengumuman, dua role dan batasannya, batas percobaan login, validasi Instagram/LinkedIn/foto, kompres foto ke WebP, dan thumbnail galeri.
+Tes memeriksa semua halaman publik, bagian lokasi, privasi (nomor HP tidak tampil, anggota tersembunyi tidak muncul), escape isi pengumuman, dua role dan batasannya, batas percobaan login, validasi Instagram/LinkedIn/foto (sampai 7 MB), kompres foto ke WebP, dan thumbnail galeri.
 
 ## Masih perlu diputuskan panitia
 
 - Jam mulai dan selesai acara (isi di Pengaturan acara; hitung mundur sementara menuju 07.00 WIB)
+- Koordinat SMAN 1 Kandanghaur untuk peta (sementara memakai pencarian nama sekolah)
 - Foto sekolah untuk beranda, logo kampus, dan foto anggota
 - Jurusan, angkatan, Instagram, dan LinkedIn tiap anggota (target lengkap H-7, 11 Januari 2027)
 - Profil, jurusan, jalur masuk, biaya, dan beasiswa tiap kampus

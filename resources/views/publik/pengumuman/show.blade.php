@@ -4,7 +4,7 @@
 @section('deskripsi', $pengumuman->ringkasan)
 
 @section('isi')
-    <article class="wadah max-w-3xl py-8">
+    <article class="animasi-masuk wadah max-w-3xl py-8">
         <a href="{{ route('pengumuman.index') }}" class="inline-flex items-center gap-1 text-sm font-semibold text-zaitun hover:underline"><x-ikon name="kiri" class="size-4" /> Semua pengumuman</a>
         <h1 class="mt-3 font-serif text-3xl leading-tight font-semibold sm:text-4xl">{{ $pengumuman->judul }}</h1>
         <p class="mt-2 text-sm text-redup">{{ $pengumuman->tanggal?->translatedFormat('l, j F Y') }}</p>

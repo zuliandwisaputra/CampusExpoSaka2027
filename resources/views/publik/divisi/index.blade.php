@@ -13,7 +13,7 @@
     <div class="wadah grid gap-4 py-6 md:grid-cols-2">
         @foreach ($divisi as $d)
             @php $koordinator = $d->koordinator(); @endphp
-            <article class="kartu flex flex-col gap-3 p-5">
+            <article class="kartu flex flex-col gap-3 p-5" data-reveal>
                 <div class="flex items-start justify-between gap-3">
                     <h2 class="font-serif text-xl leading-snug font-semibold">{{ $d->nama }}</h2>
                     <span class="shrink-0 rounded-full bg-krem-tua px-2.5 py-1 text-xs font-semibold text-redup">{{ $d->anggota->count() }} orang</span>

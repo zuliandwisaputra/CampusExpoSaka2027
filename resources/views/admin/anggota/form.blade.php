@@ -13,7 +13,7 @@
         @unless ($baru) @method('PUT') @endunless
 
         <x-admin.foto name="foto" label="Foto anggota" :url="$anggota->foto_url" :dummy="\App\Support\Media::isDummy($anggota->foto)" hapus="hapus_foto"
-                      help="Foto 1:1 (persegi) paling pas, misalnya 600 × 600 px. JPG, PNG, atau WebP, maksimal 2 MB." />
+                      help="Foto 1:1 (persegi) paling pas, misalnya 600 × 600 px. JPG, PNG, atau WebP, maksimal {{ \App\Support\ImageUploader::batasMb() }} MB, dikompres otomatis." />
 
         <x-admin.input name="nama" label="Nama lengkap" :value="$anggota->nama" required maxlength="120" />
 

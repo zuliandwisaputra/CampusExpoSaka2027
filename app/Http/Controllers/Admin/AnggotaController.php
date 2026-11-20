@@ -118,7 +118,7 @@ class AnggotaController extends Controller
             'instagram' => ['nullable', 'string', 'max:30', 'regex:/^[A-Za-z0-9._]+$/'],
             'linkedin' => ['nullable', 'string', 'max:255', 'regex:#^https://www\.linkedin\.com/.+#'],
             'no_hp' => ['nullable', 'string', 'max:30', 'regex:/^[0-9+\-\s]+$/'],
-            'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:'.config('campus.upload_max_kb')],
         ]);
 
         // Koordinator selalu menyimpan anggota ke divisinya sendiri.

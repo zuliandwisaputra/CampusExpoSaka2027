@@ -22,6 +22,7 @@ class Pengaturan extends Model
         'jam_selesai' => '',
         'lokasi' => 'SMA Negeri 1 Kandanghaur',
         'alamat' => 'Jl. Pantura Karanganyar, Kec. Kandanghaur, Kab. Indramayu, Jawa Barat 45254',
+        'peta_lokasi' => 'SMA Negeri 1 Kandanghaur, Indramayu',
         'penyelenggara' => 'Ikatan Keluarga Alumni SMA Negeri 1 Kandanghaur',
         'foto_beranda' => '',
         'instagram' => 'campusexposaka_',
@@ -82,6 +83,28 @@ class Pengaturan extends Model
         $tanggal = self::ambil('tanggal_acara', self::DEFAULTS['tanggal_acara']);
 
         return now()->greaterThan(Carbon::parse($tanggal, config('app.timezone'))->endOfDay());
+    }
+
+    /** Kata kunci atau koordinat lokasi untuk Google Maps (diatur di Pengaturan acara). */
+    public static function petaKueri(): string
+    {
+        return self::ambil('peta_lokasi', self::DEFAULTS['peta_lokasi']);
+    }
+
+    /** Peta yang ditanam di beranda. Tidak butuh API key. */
+    public static function petaEmbedUrl(): string
+    {
+        return 'https://maps.google.com/maps?q='.rawurlencode(self::petaKueri()).'&z=16&output=embed';
+    }
+
+    public static function petaUrl(): string
+    {
+        return 'https://www.google.com/maps/search/?api=1&query='.rawurlencode(self::petaKueri());
+    }
+
+    public static function petaArahUrl(): string
+    {
+        return 'https://www.google.com/maps/dir/?api=1&destination='.rawurlencode(self::petaKueri());
     }
 
     public static function fotoBerandaUrl(): string

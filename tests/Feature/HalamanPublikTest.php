@@ -112,6 +112,20 @@ class HalamanPublikTest extends TestCase
         $this->get('/')->assertDontSee('data-countdown', false)->assertSee('Dokumentasi Campus Expo 2027');
     }
 
+    public function test_beranda_menampilkan_lokasi_dengan_peta_yang_dimuat_saat_diketuk(): void
+    {
+        $html = $this->get('/')
+            ->assertSee('id="lokasi"', false)
+            ->assertSee('Jl. Pantura Karanganyar')
+            ->assertSee('https://www.google.com/maps/dir/?api=1&amp;destination=', false)
+            ->assertSee('data-peta-muat', false)
+            ->getContent();
+
+        // Iframe Google Maps hanya ada sebagai cadangan <noscript>, tidak dimuat langsung.
+        $tanpaNoscript = preg_replace('#<noscript>.*?</noscript>#s', '', $html);
+        $this->assertStringNotContainsString('<iframe', $tanpaNoscript);
+    }
+
     public function test_pratinjau_link_whatsapp_tersedia(): void
     {
         $this->get('/')

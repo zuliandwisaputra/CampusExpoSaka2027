@@ -13,7 +13,7 @@
         @unless ($baru) @method('PUT') @endunless
 
         <x-admin.foto name="logo" label="Logo kampus" :url="$kampus->logo_url" :dummy="\App\Support\Media::isDummy($kampus->logo)" hapus="hapus_logo" fit="contain"
-                      help="Logo persegi, misalnya 400 × 400 px, sebaiknya PNG berlatar transparan. Maksimal 2 MB." />
+                      help="Logo persegi, misalnya 400 × 400 px, sebaiknya PNG berlatar transparan. Maksimal {{ \App\Support\ImageUploader::batasMb() }} MB, dikompres otomatis." />
 
         <div class="grid gap-4 sm:grid-cols-[1fr_180px]">
             <x-admin.input name="nama" label="Nama kampus" :value="$kampus->nama" required maxlength="150" />

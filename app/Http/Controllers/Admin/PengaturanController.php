@@ -28,16 +28,17 @@ class PengaturanController extends Controller
             'jam_selesai' => ['nullable', 'date_format:H:i', 'after:jam_mulai'],
             'lokasi' => ['required', 'string', 'max:150'],
             'alamat' => ['nullable', 'string', 'max:255'],
+            'peta_lokasi' => ['required', 'string', 'max:200'],
             'penyelenggara' => ['nullable', 'string', 'max:150'],
             'instagram' => ['nullable', 'string', 'max:30', 'regex:/^[A-Za-z0-9._]+$/'],
             'email' => ['nullable', 'email', 'max:150'],
-            'foto_beranda' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'foto_beranda' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:'.config('campus.upload_max_kb')],
         ]);
 
         $fotoLama = Pengaturan::ambil('foto_beranda');
         if ($request->hasFile('foto_beranda')) {
             Media::delete($fotoLama);
-            $data['foto_beranda'] = ImageUploader::store($request->file('foto_beranda'), 'beranda', 'sekolah', 78);
+            $data['foto_beranda'] = ImageUploader::store($request->file('foto_beranda'), 'beranda', 'sekolah', 78, 'foto_beranda');
         } elseif ($request->boolean('hapus_foto_beranda')) {
             Media::delete($fotoLama);
             $data['foto_beranda'] = '';

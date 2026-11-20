@@ -90,7 +90,111 @@ function setupSubmitLocks() {
     });
 }
 
+const kurangiGerakan = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Angka ringkasan menghitung naik dari 0 saat terlihat (0 → 83).
+function hitungNaik(root) {
+    const targets = root.matches?.('[data-hitung]') ? [root] : root.querySelectorAll?.('[data-hitung]') ?? [];
+    targets.forEach((el) => {
+        const akhir = parseInt(el.dataset.hitung, 10);
+        if (Number.isNaN(akhir) || kurangiGerakan()) {
+            el.textContent = el.dataset.hitung;
+            return;
+        }
+        const mulai = performance.now();
+        const durasi = 900;
+        const langkah = (t) => {
+            const p = Math.min(1, (t - mulai) / durasi);
+            el.textContent = String(Math.round(akhir * (1 - Math.pow(1 - p, 3))));
+            if (p < 1) requestAnimationFrame(langkah);
+        };
+        requestAnimationFrame(langkah);
+    });
+}
+
+// Elemen [data-reveal] muncul perlahan saat masuk layar, berurutan dalam satu baris/kelompok.
+function setupReveal() {
+    window.ceAnimasi = true;
+    const elemen = document.querySelectorAll('[data-reveal]');
+
+    if (kurangiGerakan() || !('IntersectionObserver' in window)) {
+        elemen.forEach((el) => el.classList.add('terlihat'));
+        return;
+    }
+
+    document.querySelectorAll('[data-reveal] [data-hitung], [data-hitung][data-reveal]').forEach((el) => {
+        el.textContent = '0';
+    });
+
+    const observer = new IntersectionObserver(
+        (entries) => {
+            entries
+                .filter((e) => e.isIntersecting)
+                .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top || a.boundingClientRect.left - b.boundingClientRect.left)
+                .forEach((entry, i) => {
+                    entry.target.style.setProperty('--tunda', `${Math.min(i, 6) * 80}ms`);
+                    entry.target.classList.add('terlihat');
+                    hitungNaik(entry.target);
+                    observer.unobserve(entry.target);
+                });
+        },
+        { rootMargin: '0px 0px -6% 0px', threshold: 0.12 },
+    );
+
+    elemen.forEach((el) => observer.observe(el));
+}
+
+// Foto sekolah di beranda bergerak sedikit lebih lambat dari halaman (paralaks halus).
+function setupParalaks() {
+    const foto = document.querySelector('[data-paralaks]');
+    if (!foto || kurangiGerakan()) return;
+
+    let menunggu = false;
+    const perbarui = () => {
+        const y = window.scrollY;
+        if (y < window.innerHeight * 1.2) foto.style.transform = `translate3d(0, ${Math.round(y * 0.3)}px, 0)`;
+        menunggu = false;
+    };
+    window.addEventListener('scroll', () => {
+        if (!menunggu) {
+            requestAnimationFrame(perbarui);
+            menunggu = true;
+        }
+    }, { passive: true });
+}
+
+// Header mendapat bayangan tipis setelah halaman di-scroll.
+function setupHeader() {
+    const header = document.querySelector('[data-header]');
+    if (!header) return;
+    const perbarui = () => header.classList.toggle('menggulir', window.scrollY > 8);
+    window.addEventListener('scroll', perbarui, { passive: true });
+    perbarui();
+}
+
+// Peta Google baru dimuat saat tombol diketuk, supaya beranda tetap ringan di hari H.
+function setupPeta() {
+    document.querySelectorAll('[data-peta-muat]').forEach((tombol) => {
+        tombol.addEventListener('click', () => {
+            const wadah = tombol.closest('[data-peta]');
+            const iframe = document.createElement('iframe');
+            iframe.src = tombol.dataset.src;
+            iframe.title = tombol.dataset.judul || 'Peta lokasi';
+            iframe.loading = 'lazy';
+            iframe.referrerPolicy = 'no-referrer-when-downgrade';
+            iframe.allowFullscreen = true;
+            iframe.className = 'absolute inset-0 z-10 size-full border-0';
+            wadah.appendChild(iframe);
+            tombol.remove();
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    setupReveal();
+    setupParalaks();
+    setupHeader();
+    setupPeta();
     startCountdowns();
     setupMenus();
     setupConfirms();

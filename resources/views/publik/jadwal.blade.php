@@ -21,7 +21,7 @@
         @else
             <ol class="relative flex flex-col gap-3 border-l-2 border-garis-tua pl-5">
                 @foreach ($jadwal as $item)
-                    <li class="relative">
+                    <li class="relative" data-reveal>
                         <span aria-hidden="true" @class([
                             'absolute top-5 -left-[29px] size-4 rounded-full border-2 border-krem',
                             'bg-mauve' => $item->acara_utama,

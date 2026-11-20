@@ -24,10 +24,10 @@
             <form method="post" enctype="multipart/form-data" action="{{ route('admin.galeri.upload', $item) }}" class="kartu mt-3 flex max-w-2xl flex-col gap-4 p-5" data-lock>
                 @csrf
                 <div>
-                    <label for="foto" class="label">Pilih foto (bisa banyak sekaligus, maksimal 20)</label>
+                    <label for="foto" class="label">Pilih foto (bisa banyak sekaligus, maksimal {{ config('campus.galeri_maks_per_unggah') }})</label>
                     <input id="foto" type="file" name="foto[]" multiple required accept="image/jpeg,image/png,image/webp"
                            class="block w-full rounded-2xl border border-dashed border-garis-tua bg-white p-3 text-sm file:mr-3 file:min-h-10 file:rounded-xl file:border-0 file:bg-zaitun file:px-4 file:text-sm file:font-semibold file:text-white">
-                    <p class="bantuan">JPG, PNG, atau WebP, maksimal 2 MB per foto. Foto dikecilkan ke 1200 × 900 px dan dibuatkan thumbnail.</p>
+                    <p class="bantuan">JPG, PNG, atau WebP, maksimal {{ \App\Support\ImageUploader::batasMb() }} MB per foto. Foto dikecilkan ke 1200 × 900 px dan dibuatkan thumbnail.</p>
                     @error('foto') <p class="galat">{{ $message }}</p> @enderror
                     @error('foto.*') <p class="galat">{{ $message }}</p> @enderror
                 </div>

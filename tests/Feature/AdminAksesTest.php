@@ -159,8 +159,31 @@ class AdminAksesTest extends TestCase
         $this->post('/admin/anggota', [...$dasar, 'instagram' => 'https://instagram.com/uji'])->assertSessionHasErrors('instagram');
         $this->post('/admin/anggota', [...$dasar, 'linkedin' => 'https://linkedin.com/in/uji'])->assertSessionHasErrors('linkedin');
         $this->post('/admin/anggota', [...$dasar, 'foto' => UploadedFile::fake()->create('cv.pdf', 100, 'application/pdf')])->assertSessionHasErrors('foto');
-        $this->post('/admin/anggota', [...$dasar, 'foto' => UploadedFile::fake()->image('besar.jpg')->size(3000)])->assertSessionHasErrors('foto');
+        $this->post('/admin/anggota', [...$dasar, 'foto' => UploadedFile::fake()->image('besar.jpg')->size(8000)])->assertSessionHasErrors('foto');
         $this->post('/admin/anggota', ['nama' => ''])->assertSessionHasErrors(['nama', 'kampus_id', 'divisi_id']);
+    }
+
+    public function test_foto_sampai_7_mb_diterima(): void
+    {
+        Storage::fake('public');
+        $this->actingAs($this->super);
+
+        $this->post('/admin/anggota', [
+            'nama' => 'Foto Besar', 'kampus_id' => Kampus::first()->id, 'divisi_id' => Divisi::first()->id,
+            'jabatan' => 'Anggota', 'foto' => UploadedFile::fake()->image('besar.jpg', 3000, 3000)->size(6500),
+        ])->assertSessionHasNoErrors()->assertRedirect('/admin/anggota');
+
+        $this->assertNotNull(Anggota::where('nama', 'Foto Besar')->value('foto'));
+    }
+
+    public function test_lokasi_peta_bisa_diatur_super_admin(): void
+    {
+        $this->actingAs($this->super)->put('/admin/pengaturan', [
+            'nama_acara' => 'Campus Expo', 'tanggal_acara' => '2027-01-18', 'lokasi' => 'SMA Negeri 1 Kandanghaur',
+            'peta_lokasi' => '-6.123456, 108.123456',
+        ])->assertSessionHasNoErrors();
+
+        $this->get('/')->assertSee('destination=-6.123456%2C%20108.123456', false);
     }
 
     public function test_foto_diunggah_dikecilkan_dan_disimpan_sebagai_webp(): void

@@ -16,8 +16,8 @@ return [
     'in' => ':attribute yang dipilih tidak valid.',
     'integer' => ':attribute harus berupa angka bulat.',
     'max' => [
-        'array' => ':attribute maksimal berisi :max item.',
-        'file' => ':attribute maksimal :max KB (2 MB).',
+        'array' => ':attribute maksimal :max file sekali unggah.',
+        'file' => ':attribute terlalu besar. Ukuran maksimal 7 MB.',
         'numeric' => ':attribute maksimal :max.',
         'string' => ':attribute maksimal :max karakter.',
     ],
@@ -35,7 +35,7 @@ return [
     'required_with' => ':attribute wajib diisi.',
     'string' => ':attribute harus berupa teks.',
     'unique' => ':attribute sudah dipakai.',
-    'uploaded' => ':attribute gagal diunggah. Pastikan ukurannya di bawah 2 MB.',
+    'uploaded' => ':attribute gagal diunggah. Pastikan ukurannya tidak lebih dari 7 MB.',
     'url' => ':attribute harus berupa tautan yang valid.',
 
     'password' => [
@@ -92,6 +92,7 @@ return [
         'jam_selesai' => 'Jam selesai',
         'nama_acara' => 'Nama acara',
         'foto_beranda' => 'Foto sekolah',
+        'peta_lokasi' => 'Lokasi di Google Maps',
         'role' => 'Role',
     ],
 ];

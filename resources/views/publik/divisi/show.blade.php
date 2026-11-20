@@ -5,7 +5,7 @@
 
 @section('isi')
     <section class="border-b border-garis bg-krem-tua/60">
-        <div class="wadah py-8">
+        <div class="animasi-masuk wadah py-8">
             <a href="{{ route('divisi.index') }}" class="inline-flex items-center gap-1 text-sm font-semibold text-zaitun hover:underline"><x-ikon name="kiri" class="size-4" /> Semua divisi</a>
             <h1 class="mt-2 font-serif text-3xl leading-tight font-semibold sm:text-4xl">{{ $divisi->nama }}</h1>
             @if ($divisi->deskripsi)

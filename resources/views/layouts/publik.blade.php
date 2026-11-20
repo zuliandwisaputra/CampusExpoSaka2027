@@ -38,12 +38,15 @@
     <meta property="og:locale" content="id_ID">
     <meta name="twitter:card" content="summary_large_image">
 
+    {{-- Tandai bahwa JavaScript aktif untuk animasi scroll. Kalau skrip utama gagal dimuat,
+         semua elemen tetap ditampilkan setelah 2,5 detik. --}}
+    <script>document.documentElement.classList.add('js');setTimeout(function(){if(!window.ceAnimasi)document.documentElement.classList.add('tanpa-animasi')},2500);</script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="flex min-h-dvh flex-col">
     <a href="#isi" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-xl focus:bg-white focus:px-4 focus:py-3 focus:font-semibold">Langsung ke isi</a>
 
-    <header class="sticky top-0 z-30 border-b border-garis bg-krem/95 backdrop-blur">
+    <header class="sticky top-0 z-30 border-b border-garis bg-krem/95 backdrop-blur" data-header>
         <div class="wadah flex items-center justify-between gap-4 py-3">
             <a href="{{ route('beranda') }}" class="flex flex-col leading-tight">
                 <span class="font-serif text-[21px] font-bold">Campus Expo</span>
@@ -100,6 +103,7 @@
                 <p class="max-w-md text-sm leading-relaxed text-[#E4DEC9]">
                     {{ $p['penyelenggara'] }}<br>{{ $p['alamat'] }}
                 </p>
+                <a href="{{ route('beranda') }}#lokasi" class="inline-flex min-h-10 items-center gap-1.5 self-start text-sm font-semibold text-rose-terang hover:text-white"><x-ikon name="lokasi" class="size-4" /> Lihat peta lokasi</a>
                 <div class="flex flex-wrap gap-2">
                     @if ($p['instagram'])
                         <a href="https://www.instagram.com/{{ $p['instagram'] }}/" target="_blank" rel="noopener noreferrer" class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/25 px-3 text-sm hover:bg-white/10">
