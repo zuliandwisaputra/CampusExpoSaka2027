@@ -21,4 +21,7 @@ return [
 
     // Jumlah item per halaman di daftar publik dan admin.
     'per_page' => 12,
+
+    // Pembuat website, ditampilkan di footer dan di <meta name="author">.
+    'pembuat' => 'Zulian Dwi Saputra',
 ];

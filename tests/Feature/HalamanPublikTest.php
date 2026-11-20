@@ -107,11 +107,12 @@ class HalamanPublikTest extends TestCase
 
     public function test_anggota_yang_disembunyikan_tidak_tampil(): void
     {
-        $this->get('/')->assertSee('Zulian Dwi Saputra');
+        // Bukan nama pembuat website, karena nama itu selalu tampil di footer.
+        $this->get('/')->assertSee('Aliyah Syifa Azzahra');
 
-        Anggota::where('nama', 'Zulian Dwi Saputra')->first()->update(['ditampilkan' => false]);
+        Anggota::where('nama', 'Aliyah Syifa Azzahra')->first()->update(['ditampilkan' => false]);
 
-        $this->get('/')->assertDontSee('Zulian Dwi Saputra');
+        $this->get('/')->assertDontSee('Aliyah Syifa Azzahra');
     }
 
     public function test_nomor_hp_tidak_pernah_tampil_di_halaman_publik(): void
@@ -170,6 +171,13 @@ class HalamanPublikTest extends TestCase
         // Iframe Google Maps hanya ada sebagai cadangan <noscript>, tidak dimuat langsung.
         $tanpaNoscript = preg_replace('#<noscript>.*?</noscript>#s', '', $html);
         $this->assertStringNotContainsString('<iframe', $tanpaNoscript);
+    }
+
+    public function test_nama_pembuat_website_tampil_di_footer(): void
+    {
+        $this->get('/')
+            ->assertSee('Dibuat oleh <span class="font-semibold text-krem">Zulian Dwi Saputra</span>', false)
+            ->assertSee('<meta name="author" content="Zulian Dwi Saputra">', false);
     }
 
     public function test_pratinjau_link_whatsapp_tersedia(): void

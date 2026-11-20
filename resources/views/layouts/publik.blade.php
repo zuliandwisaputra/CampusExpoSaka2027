@@ -27,6 +27,7 @@
     <meta name="theme-color" content="#3E4720">
     <title>{{ $judulLengkap }}</title>
     <meta name="description" content="{{ \Illuminate\Support\Str::limit($deskripsi, 160) }}">
+    <meta name="author" content="{{ config('campus.pembuat') }}">
     <link rel="canonical" href="{{ url()->current() }}">
 
     {{-- Judul, deskripsi, dan gambar pratinjau saat link dibagikan ke WhatsApp. --}}
@@ -123,7 +124,11 @@
             </nav>
         </div>
         <div class="border-t border-white/15">
-            <p class="wadah py-4 text-xs text-[#E4DEC9]">&copy; {{ date('Y') }} Panitia Campus Expo SMAN 1 Kandanghaur. “{{ $p['tagline'] }}”</p>
+            {{-- Jarak kanan supaya teks tidak tertutup tombol "kembali ke atas" di layar yang sempit. --}}
+            <div class="wadah flex flex-col gap-1.5 py-4 pr-20 text-xs text-[#E4DEC9] sm:flex-row sm:items-center sm:justify-between sm:gap-4 xl:pr-6">
+                <p>&copy; {{ date('Y') }} Panitia Campus Expo SMAN 1 Kandanghaur. “{{ $p['tagline'] }}”</p>
+                <p class="shrink-0">Dibuat oleh <span class="font-semibold text-krem">{{ config('campus.pembuat') }}</span></p>
+            </div>
         </div>
     </footer>
 
