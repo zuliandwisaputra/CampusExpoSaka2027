@@ -1,0 +1,141 @@
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/playfair-display';
+@import '@fontsource-variable/playfair-display/wght-italic.css';
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+/*
+ * Token desain "Opsi A · Lanskap" (dipilih panitia).
+ * Hasil skill UI UX Pro Max: gaya Nature Distilled, font Playfair Display + Inter.
+ * Semua pasangan teks/latar di bawah sudah dicek minimal 4.5:1.
+ */
+@theme {
+    --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+    --font-serif: 'Playfair Display Variable', Georgia, serif;
+
+    --color-krem: #F6F2E9;
+    --color-krem-tua: #EFE9DA;
+    --color-garis: #E4DCC8;
+    --color-garis-tua: #D8CFB8;
+    --color-foto: #DCD3BC;
+
+    --color-tinta: #2A2A1E;
+    --color-redup: #5E5B48;
+
+    --color-zaitun: #5C5A2C;
+    --color-zaitun-gelap: #3E3C1C;
+    --color-zaitun-tua: #3E4720;
+    --color-zaitun-brand: #948A4E;
+
+    --color-rose: #E0A8AE;
+    --color-rose-muda: #F7E3E5;
+    --color-rose-terang: #F2CFD3;
+    --color-mauve: #A65F5F;
+    --color-mauve-tua: #7A3E44;
+}
+
+@layer base {
+    html {
+        -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+        @apply bg-krem font-sans text-tinta antialiased;
+    }
+
+    a,
+    button,
+    summary,
+    [role='button'] {
+        @apply cursor-pointer;
+    }
+
+    :focus-visible {
+        outline: 3px solid var(--color-mauve);
+        outline-offset: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
+    }
+}
+
+
+@utility tombol {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-5 text-[15px] font-semibold transition-colors duration-200;
+}
+
+@utility tombol-utama {
+    @apply tombol bg-mauve text-white hover:bg-mauve-tua;
+}
+
+@utility tombol-zaitun {
+    @apply tombol bg-zaitun text-white hover:bg-zaitun-gelap;
+}
+
+@utility tombol-garis {
+    @apply tombol border border-garis-tua bg-white text-tinta hover:bg-krem-tua;
+}
+
+@utility tombol-bahaya {
+    @apply tombol border border-[#E8C4C4] bg-white text-mauve-tua hover:bg-rose-muda;
+}
+
+@layer components {
+    .wadah {
+        @apply mx-auto w-full max-w-6xl px-4 sm:px-6;
+    }
+
+    .judul-bagian {
+        @apply font-serif text-2xl font-semibold sm:text-3xl;
+    }
+
+    .kartu {
+        @apply rounded-2xl border border-garis bg-white;
+    }
+
+    .chip {
+        @apply inline-flex min-h-10 items-center rounded-full border border-garis-tua bg-white px-4 text-sm whitespace-nowrap text-tinta transition-colors duration-200 hover:bg-krem-tua;
+    }
+
+    .chip-aktif {
+        @apply border-zaitun bg-zaitun font-semibold text-white hover:bg-zaitun-gelap;
+    }
+
+    .input {
+        @apply block min-h-12 w-full rounded-2xl border border-garis-tua bg-white px-4 text-base text-tinta placeholder:text-redup focus:border-zaitun focus:outline-none;
+    }
+
+    .label {
+        @apply mb-1.5 block text-sm font-semibold text-tinta;
+    }
+
+    .bantuan {
+        @apply mt-1 text-[13px] text-redup;
+    }
+
+    .galat {
+        @apply mt-1 text-[13px] font-medium text-mauve-tua;
+    }
+
+    .isi-teks p {
+        @apply mb-4 leading-relaxed;
+    }
+
+    .isi-teks ul {
+        @apply mb-4 list-disc space-y-1 pl-5;
+    }
+
+    .isi-teks ol {
+        @apply mb-4 list-decimal space-y-1 pl-5;
+    }
+}
