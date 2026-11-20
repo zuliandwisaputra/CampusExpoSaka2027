@@ -226,9 +226,140 @@ html.tanpa-animasi [data-reveal] {
 
 /* ---------- One page ---------- */
 
-/* Item tambahan (kampus ke-9 dst.) disembunyikan sampai tombol "lebih" diketuk; hanya kalau JS aktif. */
-html.js .lebih {
-    display: none;
+/*
+ * Daftar geser ke samping. Kartu menempel (scroll snap) di tepi kiri, kartu berikutnya sedikit
+ * mengintip di HP sebagai tanda bisa digeser. Jalur melebar sampai tepi layar di HP.
+ */
+.geser-jalur {
+    --tepi: 1rem;
+    --jarak: 0.75rem;
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(var(--baris, 1), auto);
+    grid-auto-columns: var(--kolom, 85%);
+    gap: var(--jarak);
+    margin-inline: calc(var(--tepi) * -1);
+    padding: 0.25rem var(--tepi) 0.75rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--tepi);
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-garis-tua) transparent;
+}
+
+.geser-jalur > * {
+    min-width: 0;
+    scroll-snap-align: start;
+}
+
+.geser-jalur:focus-visible {
+    outline-offset: -3px;
+    border-radius: 1rem;
+}
+
+/* Lebar kolom: persen di HP (kartu berikutnya mengintip), jumlah kolom pas di layar lebar. */
+.geser-lebar,
+.geser-kampus {
+    --kolom: 85%;
+}
+
+.geser-anggota {
+    --kolom: 42%;
+}
+
+.geser-foto {
+    --kolom: 78%;
+}
+
+@media (min-width: 40rem) {
+    .geser-jalur {
+        --tepi: 1.5rem;
+    }
+
+    .geser-anggota {
+        --kolom: calc((100% - 2 * var(--jarak)) / 3);
+    }
+
+    .geser-foto {
+        --kolom: calc((100% - var(--jarak)) / 2);
+    }
+}
+
+@media (min-width: 48rem) {
+    .geser-lebar,
+    .geser-kampus {
+        --kolom: calc((100% - var(--jarak)) / 2);
+    }
+
+    .geser-anggota {
+        --kolom: calc((100% - 3 * var(--jarak)) / 4);
+    }
+}
+
+@media (min-width: 64rem) {
+    .geser-lebar,
+    .geser-kampus {
+        --kolom: calc((100% - 2 * var(--jarak)) / 3);
+    }
+
+    .geser-anggota {
+        --kolom: calc((100% - 4 * var(--jarak)) / 5);
+    }
+
+    .geser-foto {
+        --kolom: calc((100% - 3 * var(--jarak)) / 4);
+    }
+}
+
+.tombol-geser {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 9999px;
+    border: 1px solid var(--color-garis-tua);
+    background-color: #fff;
+    color: var(--color-zaitun);
+    transition:
+        background-color 0.2s,
+        opacity 0.2s;
+}
+
+.tombol-geser:hover {
+    background-color: var(--color-krem-tua);
+}
+
+.tombol-geser[aria-disabled='true'] {
+    opacity: 0.35;
+    cursor: default;
+}
+
+.tombol-geser[aria-disabled='true']:hover {
+    background-color: #fff;
+}
+
+/* Tombol kembali ke atas: muncul pelan dari bawah setelah menggulir lebih dari satu layar. */
+.ke-atas {
+    position: fixed;
+    right: max(1rem, env(safe-area-inset-right));
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    z-index: 20;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(12px);
+    transition:
+        opacity 0.2s ease-out,
+        transform 0.2s ease-out,
+        visibility 0.2s,
+        background-color 0.2s;
+}
+
+.ke-atas.tampil {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
 }
 
 /* Menu header menandai bagian yang sedang dibaca. */

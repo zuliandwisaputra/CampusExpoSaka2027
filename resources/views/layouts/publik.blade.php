@@ -127,6 +127,10 @@
         </div>
     </footer>
 
+    <button type="button" class="ke-atas flex size-12 items-center justify-center rounded-full bg-zaitun text-white shadow-lg hover:bg-zaitun-gelap" data-ke-atas tabindex="-1" aria-label="Kembali ke atas">
+        <x-ikon name="atas" />
+    </button>
+
     @stack('dialog')
 </body>
 </html>

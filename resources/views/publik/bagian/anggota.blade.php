@@ -1,10 +1,9 @@
-{{-- Anggota: cari nama, filter kampus dan divisi tanpa memuat ulang. 12 kartu awal, sisanya bertahap. --}}
+{{-- Anggota: cari nama, filter kampus dan divisi tanpa memuat ulang. Kartu digeser ke samping (2 baris). --}}
 @php
-    $awalAnggota = 12;
     $kampusAnggota = $anggota->pluck('kampus')->filter()->unique('id')->sortBy('nama')->values();
 @endphp
 <section id="anggota" class="scroll-mt-20 py-12 sm:py-16" aria-labelledby="judul-anggota">
-    <div class="wadah flex flex-col gap-5" data-daftar="anggota" data-awal="{{ $awalAnggota }}" data-tambah="12" data-satuan="anggota">
+    <div class="wadah flex flex-col gap-5" data-daftar="anggota" data-satuan="anggota">
         @include('partials.kepala-bagian', [
             'id' => 'judul-anggota', 'label' => 'Anggota', 'judul' => 'Kenalan dengan alumni',
             'pengantar' => 'Alumni SMAN 1 Kandanghaur yang mewakili kampusnya. Sapa mereka lewat Instagram atau LinkedIn kalau ingin bertanya lebih jauh.',
@@ -36,24 +35,23 @@
                     </select>
                 </div>
             </div>
-            <div class="flex items-center justify-between gap-3">
-                <p class="text-sm text-redup" aria-live="polite" data-jumlah>{{ $anggota->count() }} anggota</p>
-                <button type="button" class="text-sm font-semibold text-zaitun hover:underline" data-reset hidden>Hapus filter</button>
-            </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        <x-geser id="geser-anggota" label="Daftar anggota" kolom="geser-anggota" baris="2">
+            <x-slot:kepala>
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <p class="text-sm text-redup" aria-live="polite" data-jumlah>{{ $anggota->count() }} anggota</p>
+                    <button type="button" class="min-h-11 text-sm font-semibold text-zaitun hover:underline" data-reset hidden>Hapus filter</button>
+                </div>
+            </x-slot:kepala>
+
             @foreach ($anggota as $a)
-                @include('partials.kartu-anggota', ['a' => $a, 'daftar' => true, 'lebih' => $loop->index >= $awalAnggota])
+                @include('partials.kartu-anggota', ['a' => $a, 'daftar' => true])
             @endforeach
-        </div>
+        </x-geser>
 
         <div hidden data-kosong>
             @include('partials.kosong', ['ikon' => 'orang', 'judul' => 'Anggota tidak ditemukan', 'teks' => 'Coba nama lain atau ganti filter kampus dan divisi.'])
         </div>
-
-        @if ($anggota->count() > $awalAnggota)
-            <button type="button" class="tombol-garis self-center" data-tampil-lebih>Tampilkan lebih banyak <x-ikon name="kanan" class="size-4 rotate-90" /></button>
-        @endif
     </div>
 </section>

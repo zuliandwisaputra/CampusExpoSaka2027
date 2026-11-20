@@ -78,6 +78,19 @@ class HalamanPublikTest extends TestCase
             ->assertSee('data-saring="divisi"', false);
     }
 
+    public function test_daftar_panjang_digeser_ke_samping_dan_ada_tombol_ke_atas(): void
+    {
+        $response = $this->get('/');
+
+        foreach (['geser-pengumuman', 'geser-kampus', 'geser-anggota', 'geser-divisi'] as $id) {
+            $response->assertSee('id="'.$id.'"', false)->assertSee('aria-controls="'.$id.'"', false);
+        }
+
+        $response->assertSee('aria-label="Geser ke kanan"', false)
+            ->assertSee('data-ke-atas', false)
+            ->assertSee('aria-label="Kembali ke atas"', false);
+    }
+
     public function test_anggota_yang_disembunyikan_tidak_tampil(): void
     {
         $this->get('/')->assertSee('Zulian Dwi Saputra');

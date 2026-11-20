@@ -1,4 +1,4 @@
-{{-- Divisi: deskripsi tugas dan koordinator. Tombolnya menyaring daftar anggota ke divisi itu. --}}
+{{-- Divisi: kartu digeser ke samping berisi tugas dan koordinator. Tombolnya menyaring daftar anggota ke divisi itu. --}}
 <section id="divisi" class="scroll-mt-20 bg-krem-tua/60 py-12 sm:py-16" aria-labelledby="judul-divisi">
     <div class="wadah flex flex-col gap-5">
         @include('partials.kepala-bagian', [
@@ -6,10 +6,10 @@
             'pengantar' => $divisi->count().' divisi bekerja sama menyiapkan Campus Expo 2027.',
         ])
 
-        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <x-geser id="geser-divisi" label="Daftar divisi">
             @foreach ($divisi as $d)
                 @php $koordinator = $d->koordinator(); @endphp
-                <article class="kartu flex flex-col gap-3 p-5" data-reveal>
+                <article class="kartu flex flex-col gap-3 p-5">
                     <div class="flex items-start justify-between gap-3">
                         <h3 class="font-serif text-xl leading-snug font-semibold">{{ $d->nama }}</h3>
                         <span class="shrink-0 rounded-full bg-krem-tua px-2.5 py-1 text-xs font-semibold text-redup">{{ $d->anggota->count() }} orang</span>
@@ -30,6 +30,6 @@
                     <a href="#anggota" class="tombol-garis mt-auto" data-pilih-divisi="{{ $d->id }}">Lihat anggota divisi <x-ikon name="panah" class="size-[18px]" /></a>
                 </article>
             @endforeach
-        </div>
+        </x-geser>
     </div>
 </section>

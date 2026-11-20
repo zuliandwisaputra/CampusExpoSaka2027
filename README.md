@@ -6,12 +6,12 @@ Tampilan memakai **Opsi A · Lanskap** (dipilih panitia), disusun dengan skill U
 
 ## Fitur versi 1
 
-Situs publik berbentuk **one page**: semua bagian ada di satu halaman dan menu di atas langsung menggulir ke bagiannya (menu yang sedang dibaca ikut ditandai). Panel admin tetap per halaman.
+Situs publik berbentuk **one page**: semua bagian ada di satu halaman dan menu di atas langsung menggulir ke bagiannya (menu yang sedang dibaca ikut ditandai). Daftar yang panjang (pengumuman, kampus, anggota, divisi, foto galeri) digeser ke samping: di HP tinggal diusap, dan ada tombol panah kiri/kanan. Tombol "kembali ke atas" muncul setelah pengunjung menggulir lebih dari satu layar. Panel admin tetap per halaman.
 
 | Situs publik (tanpa login, satu halaman) | Panel admin (`/admin`) |
 | --- | --- |
 | Beranda: foto sekolah, hitung mundur, ringkasan angka. Setelah acara lewat, hitung mundur diganti foto dokumentasi. | Dashboard dengan penanda data yang belum lengkap |
-| Pengumuman: 3 terbaru, sisanya lewat tombol "Lihat pengumuman lainnya"; isi lengkap terbuka di pop-up | Anggota: tambah, ubah, hapus, cari, filter, upload foto, tampil/sembunyi |
+| Pengumuman: kartu digeser ke samping, isi lengkap terbuka di pop-up | Anggota: tambah, ubah, hapus, cari, filter, upload foto, tampil/sembunyi |
 | Kampus: cari, filter jenis (PTN, PTS, Politeknik, Kedinasan) dan provinsi tanpa memuat ulang halaman. Ketuk kartu untuk membuka detail di pop-up: profil, jurusan, jalur masuk, biaya, beasiswa, link resmi, alumni, tombol bagikan ke WhatsApp | Kampus dan jurusan |
 | Anggota: cari, filter kampus dan divisi; kartu dengan ikon Instagram/LinkedIn (muncul hanya kalau diisi) | Divisi, Jadwal, Pengumuman (draf/terbit, sematkan), Galeri (upload banyak foto), FAQ |
 | Divisi (tombol "Lihat anggota divisi" langsung menyaring daftar anggota), Jadwal, Galeri, FAQ, dan Lokasi SMAN 1 Kandanghaur (peta Google Maps + petunjuk arah) | Pengaturan acara dan Akun admin (khusus super admin) |

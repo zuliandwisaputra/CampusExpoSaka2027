@@ -8,6 +8,7 @@
         @case('kanan')<path d="m9 18 6-6-6-6"/>@break
         @case('kiri')<path d="m15 18-6-6 6-6"/>@break
         @case('panah')<path d="M5 12h14M12 5l7 7-7 7"/>@break
+        @case('atas')<path d="M12 19V5M5 12l7-7 7 7"/>@break
         @case('kalender')<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>@break
         @case('lokasi')<path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>@break
         @case('jam')<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>@break

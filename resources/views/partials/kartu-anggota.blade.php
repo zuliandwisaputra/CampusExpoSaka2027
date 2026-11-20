@@ -1,6 +1,6 @@
 {{-- Kartu anggota: foto 1:1 (object-fit cover), nama, kampus, jurusan, angkatan, divisi, jabatan.
      Ikon Instagram/LinkedIn hanya muncul kalau datanya diisi, dan dibuka di tab baru. --}}
-<article @class(['kartu flex flex-col overflow-hidden', 'lebih' => $lebih ?? false]) data-reveal
+<article class="kartu flex flex-col overflow-hidden"
     @if ($daftar ?? false) data-item data-cari="{{ \Illuminate\Support\Str::lower($a->nama) }}" data-kampus="{{ $a->kampus_id }}" data-divisi="{{ $a->divisi_id }}" @endif>
     <img src="{{ $a->foto_url }}" alt="Foto {{ $a->nama }}" width="600" height="600" loading="lazy" decoding="async"
          class="aspect-square w-full bg-foto object-cover">

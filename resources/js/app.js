@@ -197,21 +197,17 @@ function setupPeta() {
     });
 }
 
-// Daftar yang bisa dicari dan disaring tanpa memuat ulang halaman (kampus, anggota, galeri, pengumuman).
+// Daftar yang bisa dicari dan disaring tanpa memuat ulang halaman (kampus dan anggota).
 // Struktur: [data-daftar] berisi [data-item], kontrol [data-saring]/[data-saring-chip],
-// tombol [data-tampil-lebih], teks [data-jumlah], keadaan kosong [data-kosong], dan [data-reset].
+// teks [data-jumlah], keadaan kosong [data-kosong], dan tombol [data-reset].
 function setupDaftar() {
     document.querySelectorAll('[data-daftar]').forEach((root) => {
         const items = [...root.querySelectorAll('[data-item]')];
-        const awal = parseInt(root.dataset.awal || '0', 10) || items.length;
-        const tambah = parseInt(root.dataset.tambah || '0', 10);
         const satuan = root.dataset.satuan || '';
-        const tombolLebih = root.querySelector('[data-tampil-lebih]');
         const jumlah = root.querySelector('[data-jumlah]');
         const kosong = root.querySelector('[data-kosong]');
         const reset = root.querySelector('[data-reset]');
         const saring = {};
-        let batas = awal;
 
         const cocok = (item) => Object.entries(saring).every(([kunci, nilai]) => {
             if (!nilai) return true;
@@ -221,16 +217,16 @@ function setupDaftar() {
 
         const tampilkan = () => {
             const aktif = Object.values(saring).some(Boolean);
-            const hasil = items.filter(cocok);
-            const terlihat = new Set(aktif ? hasil : hasil.slice(0, batas));
+            let cocokan = 0;
             items.forEach((item) => {
-                item.hidden = !terlihat.has(item);
-                item.classList.remove('lebih');
+                item.hidden = !cocok(item);
+                if (!item.hidden) cocokan += 1;
             });
-            if (jumlah) jumlah.textContent = `${hasil.length} ${satuan}`.trim();
-            if (kosong) kosong.hidden = hasil.length > 0;
-            if (tombolLebih) tombolLebih.hidden = aktif || batas >= hasil.length;
+            if (jumlah) jumlah.textContent = `${cocokan} ${satuan}`.trim();
+            if (kosong) kosong.hidden = cocokan > 0;
             if (reset) reset.hidden = !aktif;
+            // Daftar geser kembali ke awal supaya hasil saringan langsung terlihat.
+            root.querySelectorAll('[data-geser]').forEach((geser) => geser.keAwal?.());
         };
 
         root.querySelectorAll('[data-saring]').forEach((el) => {
@@ -257,11 +253,6 @@ function setupDaftar() {
             });
         });
 
-        tombolLebih?.addEventListener('click', () => {
-            batas = tambah > 0 ? batas + tambah : items.length;
-            tampilkan();
-        });
-
         reset?.addEventListener('click', () => {
             Object.keys(saring).forEach((k) => delete saring[k]);
             root.querySelectorAll('[data-saring]').forEach((el) => { el.value = ''; });
@@ -285,6 +276,76 @@ function setupDaftar() {
             document.querySelector('[data-daftar="anggota"]')?.saringDari('divisi', tombol.dataset.pilihDivisi);
         });
     });
+}
+
+// Daftar yang digeser ke samping (kampus, anggota, divisi, pengumuman, galeri).
+// Tombol panah menggeser satu layar; tombol mati di ujung daftar dan tersembunyi kalau semua isi sudah muat.
+function setupGeser() {
+    document.querySelectorAll('[data-geser]').forEach((geser) => {
+        const jalur = geser.querySelector('[data-geser-jalur]');
+        const grupTombol = geser.querySelector('[data-geser-tombol]');
+        const tombol = [...geser.querySelectorAll('[data-geser-arah]')];
+        if (!jalur || !grupTombol) return;
+
+        let antre = false;
+        const perbarui = () => {
+            antre = false;
+            const sisa = jalur.scrollWidth - jalur.clientWidth;
+            grupTombol.hidden = sisa <= 4;
+            tombol.forEach((t) => {
+                const mentok = t.dataset.geserArah === '-1' ? jalur.scrollLeft <= 4 : jalur.scrollLeft >= sisa - 4;
+                t.setAttribute('aria-disabled', String(mentok));
+            });
+        };
+        const jadwalkan = () => {
+            if (antre) return;
+            antre = true;
+            requestAnimationFrame(perbarui);
+        };
+
+        tombol.forEach((t) => {
+            t.addEventListener('click', () => {
+                if (t.getAttribute('aria-disabled') === 'true') return;
+                const gaya = getComputedStyle(jalur);
+                const lebar = jalur.clientWidth - parseFloat(gaya.paddingLeft) - parseFloat(gaya.paddingRight);
+                jalur.scrollBy({ left: Number(t.dataset.geserArah) * lebar, behavior: kurangiGerakan() ? 'auto' : 'smooth' });
+            });
+        });
+
+        jalur.addEventListener('scroll', jadwalkan, { passive: true });
+        window.addEventListener('resize', jadwalkan);
+        geser.keAwal = () => {
+            jalur.scrollLeft = 0;
+            perbarui();
+        };
+        perbarui();
+    });
+}
+
+// Tombol "kembali ke atas" muncul setelah pengunjung menggulir lebih dari satu layar.
+function setupKeAtas() {
+    const tombol = document.querySelector('[data-ke-atas]');
+    if (!tombol) return;
+
+    let antre = false;
+    const perbarui = () => {
+        antre = false;
+        const tampil = window.scrollY > window.innerHeight;
+        tombol.classList.toggle('tampil', tampil);
+        tombol.tabIndex = tampil ? 0 : -1;
+    };
+    window.addEventListener('scroll', () => {
+        if (antre) return;
+        antre = true;
+        requestAnimationFrame(perbarui);
+    }, { passive: true });
+
+    tombol.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: kurangiGerakan() ? 'auto' : 'smooth' });
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+        document.querySelector('[data-header] a')?.focus({ preventScroll: true });
+    });
+    perbarui();
 }
 
 // Pop-up detail kampus dan pengumuman. Alamat #kampus/{slug} atau #pengumuman/{slug} langsung membukanya.
@@ -367,6 +428,8 @@ function setupScrollspy() {
 
 document.addEventListener('DOMContentLoaded', () => {
     setupDaftar();
+    setupGeser();
+    setupKeAtas();
     setupDialog();
     setupScrollspy();
     setupReveal();
