@@ -1,0 +1,449 @@
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/playfair-display';
+@import '@fontsource-variable/playfair-display/wght-italic.css';
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+/*
+ * Token desain "Opsi A · Lanskap" (dipilih panitia).
+ * Hasil skill UI UX Pro Max: gaya Nature Distilled, font Playfair Display + Inter.
+ * Semua pasangan teks/latar di bawah sudah dicek minimal 4.5:1.
+ */
+@theme {
+    --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+    --font-serif: 'Playfair Display Variable', Georgia, serif;
+
+    --color-krem: #F6F2E9;
+    --color-krem-tua: #EFE9DA;
+    --color-garis: #E4DCC8;
+    --color-garis-tua: #D8CFB8;
+    --color-foto: #DCD3BC;
+
+    --color-tinta: #2A2A1E;
+    --color-redup: #5E5B48;
+
+    --color-zaitun: #5C5A2C;
+    --color-zaitun-gelap: #3E3C1C;
+    --color-zaitun-tua: #3E4720;
+    --color-zaitun-brand: #948A4E;
+
+    --color-rose: #E0A8AE;
+    --color-rose-muda: #F7E3E5;
+    --color-rose-terang: #F2CFD3;
+    --color-mauve: #A65F5F;
+    --color-mauve-tua: #7A3E44;
+}
+
+@layer base {
+    html {
+        -webkit-text-size-adjust: 100%;
+        scroll-behavior: smooth;
+    }
+
+    body {
+        @apply bg-krem font-sans text-tinta antialiased;
+    }
+
+    a,
+    button,
+    summary,
+    [role='button'] {
+        @apply cursor-pointer;
+    }
+
+    :focus-visible {
+        outline: 3px solid var(--color-mauve);
+        outline-offset: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
+    }
+}
+
+
+@utility tombol {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-5 text-[15px] font-semibold transition-colors duration-200;
+}
+
+@utility tombol-utama {
+    @apply tombol bg-mauve text-white hover:bg-mauve-tua;
+}
+
+@utility tombol-zaitun {
+    @apply tombol bg-zaitun text-white hover:bg-zaitun-gelap;
+}
+
+@utility tombol-garis {
+    @apply tombol border border-garis-tua bg-white text-tinta hover:bg-krem-tua;
+}
+
+@utility tombol-bahaya {
+    @apply tombol border border-[#E8C4C4] bg-white text-mauve-tua hover:bg-rose-muda;
+}
+
+@layer components {
+    .wadah {
+        @apply mx-auto w-full max-w-6xl px-4 sm:px-6;
+    }
+
+    .judul-bagian {
+        @apply font-serif text-2xl font-semibold sm:text-3xl;
+    }
+
+    .kartu {
+        @apply rounded-2xl border border-garis bg-white;
+    }
+
+    .chip {
+        @apply inline-flex min-h-10 items-center rounded-full border border-garis-tua bg-white px-4 text-sm whitespace-nowrap text-tinta transition-colors duration-200 hover:bg-krem-tua;
+    }
+
+    .chip-aktif {
+        @apply border-zaitun bg-zaitun font-semibold text-white hover:bg-zaitun-gelap;
+    }
+
+    .input {
+        @apply block min-h-12 w-full rounded-2xl border border-garis-tua bg-white px-4 text-base text-tinta placeholder:text-redup focus:border-zaitun focus:outline-none;
+    }
+
+    .label {
+        @apply mb-1.5 block text-sm font-semibold text-tinta;
+    }
+
+    .bantuan {
+        @apply mt-1 text-[13px] text-redup;
+    }
+
+    .galat {
+        @apply mt-1 text-[13px] font-medium text-mauve-tua;
+    }
+
+    .isi-teks p {
+        @apply mb-4 leading-relaxed;
+    }
+
+    .isi-teks ul {
+        @apply mb-4 list-disc space-y-1 pl-5;
+    }
+
+    .isi-teks ol {
+        @apply mb-4 list-decimal space-y-1 pl-5;
+    }
+
+    .isi-teks > :last-child {
+        @apply mb-0;
+    }
+}
+
+/*
+ * Animasi (skill UI UX Pro Max: ease-out untuk elemen yang masuk, gerakan ringan,
+ * dan dimatikan otomatis kalau pengunjung memilih "kurangi gerakan").
+ */
+@keyframes masuk {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes denyut {
+    0% {
+        transform: scale(1);
+        opacity: 0.55;
+    }
+    100% {
+        transform: scale(2.4);
+        opacity: 0;
+    }
+}
+
+/* Di luar @layer supaya tidak kalah oleh utilitas seperti transition-colors. */
+/* Animasi masuk saat halaman dibuka; --urut mengatur urutan munculnya. */
+.animasi-masuk {
+    animation: masuk 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(var(--urut, 0) * 90ms + 60ms);
+}
+
+/* Elemen muncul saat di-scroll ke layar. Hanya aktif kalau JavaScript berjalan. */
+html.js [data-reveal] {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+        opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1) var(--tunda, 0ms),
+        transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) var(--tunda, 0ms),
+        background-color 0.2s,
+        border-color 0.2s;
+}
+
+html.js [data-reveal].terlihat,
+html.tanpa-animasi [data-reveal] {
+    opacity: 1;
+    transform: none;
+}
+
+.denyut {
+    animation: denyut 1.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+[data-paralaks] {
+    will-change: transform;
+}
+
+[data-header] {
+    transition: box-shadow 0.2s ease-out;
+}
+
+[data-header].menggulir {
+    box-shadow: 0 6px 18px -10px rgb(62 60 28 / 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animasi-masuk,
+    .denyut {
+        animation: none;
+    }
+
+    html.js [data-reveal] {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+}
+
+/* ---------- One page ---------- */
+
+/*
+ * Daftar satu baris yang digeser ke samping. Kartu menempel (scroll snap) di tepi kiri, kartu
+ * berikutnya sedikit mengintip sebagai tanda bisa digeser. Jalur melebar sampai tepi layar di HP.
+ */
+.geser-jalur {
+    --tepi: 1rem;
+    --jarak: 0.75rem;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: var(--kolom, 85%);
+    gap: var(--jarak);
+    margin-inline: calc(var(--tepi) * -1);
+    padding: 0.25rem var(--tepi) 0.75rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--tepi);
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-garis-tua) transparent;
+}
+
+.geser-jalur > * {
+    min-width: 0;
+    scroll-snap-align: start;
+}
+
+.geser-jalur:focus-visible {
+    outline-offset: -3px;
+    border-radius: 1rem;
+}
+
+/* Mode "Lihat semua": daftar berubah jadi grid biasa ke bawah. */
+[data-geser].semua .geser-jalur {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(var(--kolom-semua, 1), minmax(0, 1fr));
+    margin-inline: 0;
+    padding-inline: 0;
+    overflow: visible;
+    scroll-snap-type: none;
+}
+
+[data-geser].semua [data-geser-semua-ikon] {
+    transform: rotate(-90deg);
+}
+
+/* Lebar kolom: persen di HP (kartu berikutnya mengintip), jumlah kolom pas di layar lebar.
+   --kolom-semua: jumlah kolom grid saat "Lihat semua" dibuka. */
+.geser-lebar,
+.geser-kampus {
+    --kolom: 85%;
+}
+
+.geser-anggota {
+    --kolom: 42%;
+    --kolom-semua: 2;
+}
+
+.geser-foto {
+    --kolom: 78%;
+}
+
+@media (min-width: 40rem) {
+    .geser-jalur {
+        --tepi: 1.5rem;
+    }
+
+    .geser-anggota {
+        --kolom: calc((100% - 2 * var(--jarak)) / 3);
+        --kolom-semua: 3;
+    }
+
+    .geser-foto {
+        --kolom: calc((100% - var(--jarak)) / 2);
+    }
+}
+
+@media (min-width: 48rem) {
+    .geser-lebar,
+    .geser-kampus {
+        --kolom: calc((100% - var(--jarak)) / 2);
+    }
+
+    .geser-kampus {
+        --kolom-semua: 2;
+    }
+
+    .geser-anggota {
+        --kolom: calc((100% - 3 * var(--jarak)) / 4);
+        --kolom-semua: 4;
+    }
+}
+
+@media (min-width: 64rem) {
+    .geser-lebar,
+    .geser-kampus {
+        --kolom: calc((100% - 2 * var(--jarak)) / 3);
+    }
+
+    .geser-kampus {
+        --kolom-semua: 3;
+    }
+
+    .geser-anggota {
+        --kolom: calc((100% - 4 * var(--jarak)) / 5);
+    }
+
+    .geser-foto {
+        --kolom: calc((100% - 3 * var(--jarak)) / 4);
+    }
+}
+
+.tombol-geser {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 9999px;
+    border: 1px solid var(--color-garis-tua);
+    background-color: #fff;
+    color: var(--color-zaitun);
+    transition:
+        background-color 0.2s,
+        opacity 0.2s;
+}
+
+.tombol-geser:hover {
+    background-color: var(--color-krem-tua);
+}
+
+.tombol-geser[aria-disabled='true'] {
+    opacity: 0.35;
+    cursor: default;
+}
+
+.tombol-geser[aria-disabled='true']:hover {
+    background-color: #fff;
+}
+
+/* Tombol kembali ke atas: muncul pelan dari bawah setelah menggulir lebih dari satu layar. */
+.ke-atas {
+    position: fixed;
+    right: max(1rem, env(safe-area-inset-right));
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    z-index: 20;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(12px);
+    transition:
+        opacity 0.2s ease-out,
+        transform 0.2s ease-out,
+        visibility 0.2s,
+        background-color 0.2s;
+}
+
+.ke-atas.tampil {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+}
+
+/* Menu header menandai bagian yang sedang dibaca. */
+[data-nav][aria-current='true'] {
+    background-color: var(--color-zaitun);
+    border-color: var(--color-zaitun);
+    color: #fff;
+}
+
+/* Pop-up detail kampus dan pengumuman. Di HP muncul dari bawah seperti bottom sheet. */
+dialog.dialog {
+    margin: auto;
+    width: min(100% - 32px, 720px);
+    max-width: 720px;
+    max-height: 88dvh;
+    padding: 0;
+    border: 0;
+    border-radius: 24px;
+    background: #fff;
+    color: var(--color-tinta);
+    box-shadow: 0 24px 60px -20px rgb(42 42 30 / 0.45);
+    overflow: hidden;
+}
+
+dialog.dialog::backdrop {
+    background: rgb(42 42 30 / 0.55);
+}
+
+dialog.dialog[open] {
+    animation: muncul 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes muncul {
+    from {
+        opacity: 0;
+        transform: translateY(28px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@media (max-width: 639px) {
+    dialog.dialog {
+        margin: auto 0 0;
+        width: 100%;
+        max-width: 100%;
+        max-height: 90dvh;
+        border-radius: 24px 24px 0 0;
+    }
+}
+
+html:has(dialog[open]) {
+    overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    dialog.dialog[open] {
+        animation: none;
+    }
+}
