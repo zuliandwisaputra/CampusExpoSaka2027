@@ -16,7 +16,6 @@ class Kampus extends Model
         'ptn' => 'PTN',
         'pts' => 'PTS',
         'politeknik' => 'Politeknik',
-        'kedinasan' => 'Kedinasan',
     ];
 
     protected $table = 'kampus';

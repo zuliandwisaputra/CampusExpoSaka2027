@@ -1,4 +1,4 @@
-{{-- Anggota: cari nama, filter kampus dan divisi tanpa memuat ulang. Kartu digeser ke samping (2 baris). --}}
+{{-- Anggota: cari nama, filter kampus dan divisi tanpa memuat ulang. Kartu satu baris bergeser sendiri, tombol "Lihat semua" membuka semua anggota. --}}
 @php
     $kampusAnggota = $anggota->pluck('kampus')->filter()->unique('id')->sortBy('nama')->values();
 @endphp
@@ -37,7 +37,7 @@
             </div>
         </div>
 
-        <x-geser id="geser-anggota" label="Daftar anggota" kolom="geser-anggota" baris="2">
+        <x-geser id="geser-anggota" label="Daftar anggota" kolom="geser-anggota" semua="Lihat semua anggota">
             <x-slot:kepala>
                 <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
                     <p class="text-sm text-redup" aria-live="polite" data-jumlah>{{ $anggota->count() }} anggota</p>

@@ -87,8 +87,22 @@ class HalamanPublikTest extends TestCase
         }
 
         $response->assertSee('aria-label="Geser ke kanan"', false)
+            ->assertSee('aria-label="Jeda geser otomatis"', false)
+            ->assertSee('Lihat semua kampus')
+            ->assertSee('Lihat semua anggota')
             ->assertSee('data-ke-atas', false)
             ->assertSee('aria-label="Kembali ke atas"', false);
+    }
+
+    public function test_kampus_kedinasan_masuk_kategori_politeknik(): void
+    {
+        $this->assertArrayNotHasKey('kedinasan', Kampus::JENIS);
+        $this->assertSame(0, Kampus::where('jenis', 'kedinasan')->count());
+        $this->assertSame('politeknik', Kampus::where('singkatan', 'Poltekesos')->value('jenis'));
+
+        $this->get('/')
+            ->assertDontSee('data-nilai="kedinasan"', false)
+            ->assertSee('data-nilai="politeknik"', false);
     }
 
     public function test_anggota_yang_disembunyikan_tidak_tampil(): void

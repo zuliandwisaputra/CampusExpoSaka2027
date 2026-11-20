@@ -1,4 +1,4 @@
-{{-- Kampus: cari, filter jenis dan provinsi tanpa memuat ulang halaman. Kartu digeser ke samping (3 baris), detail dibuka di pop-up. --}}
+{{-- Kampus: cari, filter jenis dan provinsi tanpa memuat ulang halaman. Kartu satu baris bergeser sendiri, tombol "Lihat semua" membuka semua kampus, detail dibuka di pop-up. --}}
 @php
     $provinsi = $kampus->pluck('provinsi')->filter()->unique()->sort()->values();
 @endphp
@@ -36,7 +36,7 @@
             </div>
         </div>
 
-        <x-geser id="geser-kampus" label="Daftar kampus" kolom="geser-kampus" baris="3">
+        <x-geser id="geser-kampus" label="Daftar kampus" kolom="geser-kampus" semua="Lihat semua kampus">
             <x-slot:kepala><p class="text-sm text-redup" aria-live="polite" data-jumlah>{{ $kampus->count() }} kampus</p></x-slot:kepala>
 
             @foreach ($kampus as $k)

@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('nama');
             $table->string('slug')->unique();
             $table->string('singkatan', 30)->nullable();
-            $table->string('jenis', 20)->index(); // ptn, pts, politeknik, kedinasan
+            $table->string('jenis', 20)->index(); // ptn, pts, politeknik
             $table->string('kota')->nullable();
             $table->string('provinsi')->nullable()->index();
             $table->string('logo')->nullable();

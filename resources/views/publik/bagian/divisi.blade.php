@@ -6,7 +6,7 @@
             'pengantar' => $divisi->count().' divisi bekerja sama menyiapkan Campus Expo 2027.',
         ])
 
-        <x-geser id="geser-divisi" label="Daftar divisi">
+        <x-geser id="geser-divisi" label="Daftar divisi" interval="5000">
             @foreach ($divisi as $d)
                 @php $koordinator = $d->koordinator(); @endphp
                 <article class="kartu flex flex-col gap-3 p-5">

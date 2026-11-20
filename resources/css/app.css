@@ -227,15 +227,14 @@ html.tanpa-animasi [data-reveal] {
 /* ---------- One page ---------- */
 
 /*
- * Daftar geser ke samping. Kartu menempel (scroll snap) di tepi kiri, kartu berikutnya sedikit
- * mengintip di HP sebagai tanda bisa digeser. Jalur melebar sampai tepi layar di HP.
+ * Daftar satu baris yang digeser ke samping. Kartu menempel (scroll snap) di tepi kiri, kartu
+ * berikutnya sedikit mengintip sebagai tanda bisa digeser. Jalur melebar sampai tepi layar di HP.
  */
 .geser-jalur {
     --tepi: 1rem;
     --jarak: 0.75rem;
     display: grid;
     grid-auto-flow: column;
-    grid-template-rows: repeat(var(--baris, 1), auto);
     grid-auto-columns: var(--kolom, 85%);
     gap: var(--jarak);
     margin-inline: calc(var(--tepi) * -1);
@@ -258,7 +257,22 @@ html.tanpa-animasi [data-reveal] {
     border-radius: 1rem;
 }
 
-/* Lebar kolom: persen di HP (kartu berikutnya mengintip), jumlah kolom pas di layar lebar. */
+/* Mode "Lihat semua": daftar berubah jadi grid biasa ke bawah. */
+[data-geser].semua .geser-jalur {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(var(--kolom-semua, 1), minmax(0, 1fr));
+    margin-inline: 0;
+    padding-inline: 0;
+    overflow: visible;
+    scroll-snap-type: none;
+}
+
+[data-geser].semua [data-geser-semua-ikon] {
+    transform: rotate(-90deg);
+}
+
+/* Lebar kolom: persen di HP (kartu berikutnya mengintip), jumlah kolom pas di layar lebar.
+   --kolom-semua: jumlah kolom grid saat "Lihat semua" dibuka. */
 .geser-lebar,
 .geser-kampus {
     --kolom: 85%;
@@ -266,6 +280,7 @@ html.tanpa-animasi [data-reveal] {
 
 .geser-anggota {
     --kolom: 42%;
+    --kolom-semua: 2;
 }
 
 .geser-foto {
@@ -279,6 +294,7 @@ html.tanpa-animasi [data-reveal] {
 
     .geser-anggota {
         --kolom: calc((100% - 2 * var(--jarak)) / 3);
+        --kolom-semua: 3;
     }
 
     .geser-foto {
@@ -292,8 +308,13 @@ html.tanpa-animasi [data-reveal] {
         --kolom: calc((100% - var(--jarak)) / 2);
     }
 
+    .geser-kampus {
+        --kolom-semua: 2;
+    }
+
     .geser-anggota {
         --kolom: calc((100% - 3 * var(--jarak)) / 4);
+        --kolom-semua: 4;
     }
 }
 
@@ -301,6 +322,10 @@ html.tanpa-animasi [data-reveal] {
     .geser-lebar,
     .geser-kampus {
         --kolom: calc((100% - 2 * var(--jarak)) / 3);
+    }
+
+    .geser-kampus {
+        --kolom-semua: 3;
     }
 
     .geser-anggota {

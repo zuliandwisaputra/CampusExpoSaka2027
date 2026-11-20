@@ -278,21 +278,44 @@ function setupDaftar() {
     });
 }
 
-// Daftar yang digeser ke samping (kampus, anggota, divisi, pengumuman, galeri).
-// Tombol panah menggeser satu layar; tombol mati di ujung daftar dan tersembunyi kalau semua isi sudah muat.
+// Daftar satu baris yang digeser ke samping (kampus, anggota, divisi, pengumuman, galeri).
+// - Tombol panah menggeser satu layar; panah mati di ujung dan tersembunyi kalau semua isi sudah muat.
+// - Bergeser sendiri satu kartu setiap beberapa detik, lalu kembali ke awal setelah kartu terakhir.
+//   Berhenti sementara saat disentuh, digulir, diarahkan mouse, difokus keyboard, tidak terlihat
+//   di layar, atau saat pop-up terbuka. Tombol jeda menghentikannya sampai ditekan lagi.
+//   Kalau HP memakai mode "kurangi gerakan", geser otomatis mati sejak awal.
+// - Tombol "Lihat semua" mengubah daftar jadi grid biasa ke bawah, dan bisa diringkas lagi.
 function setupGeser() {
     document.querySelectorAll('[data-geser]').forEach((geser) => {
         const jalur = geser.querySelector('[data-geser-jalur]');
         const grupTombol = geser.querySelector('[data-geser-tombol]');
-        const tombol = [...geser.querySelectorAll('[data-geser-arah]')];
         if (!jalur || !grupTombol) return;
 
+        const panah = [...geser.querySelectorAll('[data-geser-arah]')];
+        const tombolJeda = geser.querySelector('[data-geser-jeda]');
+        const tombolSemua = [...geser.querySelectorAll('[data-geser-semua]')];
+        const tombolSemuaBawah = geser.querySelector('[data-geser-semua-bawah]');
+        const interval = parseInt(geser.dataset.geserInterval || '3500', 10);
+        const gerak = () => (kurangiGerakan() ? 'auto' : 'smooth');
+
+        let dijeda = kurangiGerakan();
+        let semua = false;
+        let terlihat = false;
+        let diarahkan = false;
+        let difokus = false;
+        let istirahatSampai = 0;
+        const istirahat = (ms = 8000) => {
+            istirahatSampai = Date.now() + ms;
+        };
+
+        const sisaGeser = () => jalur.scrollWidth - jalur.clientWidth;
         let antre = false;
         const perbarui = () => {
             antre = false;
-            const sisa = jalur.scrollWidth - jalur.clientWidth;
-            grupTombol.hidden = sisa <= 4;
-            tombol.forEach((t) => {
+            const sisa = sisaGeser();
+            grupTombol.hidden = semua || sisa <= 4;
+            if (tombolSemuaBawah) tombolSemuaBawah.hidden = !semua && sisa <= 4;
+            panah.forEach((t) => {
                 const mentok = t.dataset.geserArah === '-1' ? jalur.scrollLeft <= 4 : jalur.scrollLeft >= sisa - 4;
                 t.setAttribute('aria-disabled', String(mentok));
             });
@@ -303,12 +326,89 @@ function setupGeser() {
             requestAnimationFrame(perbarui);
         };
 
-        tombol.forEach((t) => {
+        // Lebar satu kartu + jarak antar kartu, untuk geser otomatis satu kartu.
+        const satuKartu = () => {
+            const kartu = [...jalur.children].find((el) => !el.hidden);
+            const jarak = parseFloat(getComputedStyle(jalur).columnGap) || 0;
+            return kartu ? kartu.getBoundingClientRect().width + jarak : jalur.clientWidth;
+        };
+
+        panah.forEach((t) => {
             t.addEventListener('click', () => {
+                istirahat();
                 if (t.getAttribute('aria-disabled') === 'true') return;
                 const gaya = getComputedStyle(jalur);
                 const lebar = jalur.clientWidth - parseFloat(gaya.paddingLeft) - parseFloat(gaya.paddingRight);
-                jalur.scrollBy({ left: Number(t.dataset.geserArah) * lebar, behavior: kurangiGerakan() ? 'auto' : 'smooth' });
+                jalur.scrollBy({ left: Number(t.dataset.geserArah) * lebar, behavior: gerak() });
+            });
+        });
+
+        // Tombol jeda / putar geser otomatis.
+        const tampilkanJeda = () => {
+            if (!tombolJeda) return;
+            tombolJeda.setAttribute('aria-label', dijeda ? 'Putar geser otomatis' : 'Jeda geser otomatis');
+            tombolJeda.querySelector('[data-ikon-jeda]')?.classList.toggle('hidden', dijeda);
+            tombolJeda.querySelector('[data-ikon-putar]')?.classList.toggle('hidden', !dijeda);
+        };
+        tombolJeda?.addEventListener('click', () => {
+            dijeda = !dijeda;
+            istirahatSampai = 0;
+            tampilkanJeda();
+        });
+        tampilkanJeda();
+
+        // Geser otomatis.
+        setInterval(() => {
+            if (dijeda || semua || !terlihat || diarahkan || difokus || document.hidden) return;
+            if (Date.now() < istirahatSampai || document.querySelector('dialog[open]')) return;
+            const sisa = sisaGeser();
+            if (sisa <= 4) return;
+            if (jalur.scrollLeft >= sisa - 4) jalur.scrollTo({ left: 0, behavior: gerak() });
+            else jalur.scrollBy({ left: satuKartu(), behavior: gerak() });
+        }, interval);
+
+        if ('IntersectionObserver' in window) {
+            new IntersectionObserver(([e]) => {
+                terlihat = e.isIntersecting;
+            }, { threshold: 0.5 }).observe(jalur);
+        } else {
+            terlihat = true;
+        }
+
+        ['pointerdown', 'wheel', 'touchstart'].forEach((jenis) => {
+            jalur.addEventListener(jenis, () => istirahat(), { passive: true });
+        });
+        geser.addEventListener('pointerenter', (e) => {
+            if (e.pointerType === 'mouse') diarahkan = true;
+        });
+        geser.addEventListener('pointerleave', () => {
+            diarahkan = false;
+        });
+        geser.addEventListener('focusin', (e) => {
+            difokus = e.target.matches(':focus-visible');
+        });
+        geser.addEventListener('focusout', (e) => {
+            if (!geser.contains(e.relatedTarget)) difokus = false;
+        });
+
+        // Tombol "Lihat semua" / "Tampilkan ringkas".
+        const aturSemua = (nilai) => {
+            semua = nilai;
+            geser.classList.toggle('semua', semua);
+            jalur.scrollLeft = 0;
+            tombolSemua.forEach((t) => {
+                t.setAttribute('aria-expanded', String(semua));
+                if (t.hasAttribute('data-geser-ringkas')) t.hidden = !semua;
+                const teks = t.querySelector('[data-geser-semua-teks]');
+                if (teks) teks.textContent = semua ? 'Tampilkan ringkas' : teks.dataset.awal;
+            });
+            perbarui();
+        };
+        tombolSemua.forEach((t) => {
+            t.addEventListener('click', () => {
+                const meringkas = semua;
+                aturSemua(!semua);
+                if (meringkas && geser.getBoundingClientRect().top < 0) geser.scrollIntoView({ block: 'start', behavior: gerak() });
             });
         });
 
@@ -316,6 +416,7 @@ function setupGeser() {
         window.addEventListener('resize', jadwalkan);
         geser.keAwal = () => {
             jalur.scrollLeft = 0;
+            istirahat();
             perbarui();
         };
         perbarui();
