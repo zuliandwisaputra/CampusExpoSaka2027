@@ -7,6 +7,7 @@ use App\Models\Divisi;
 use App\Models\Foto;
 use App\Models\Jadwal;
 use App\Models\Kampus;
+use App\Models\Pengaturan;
 use App\Models\User;
 use Database\Seeders\KontenAwalSeeder;
 use Database\Seeders\PanitiaSeeder;
@@ -184,6 +185,27 @@ class AdminAksesTest extends TestCase
         ])->assertSessionHasNoErrors();
 
         $this->get('/')->assertSee('destination=-6.123456%2C%20108.123456', false);
+    }
+
+    public function test_akun_sosmed_bisa_diatur_dan_tanda_at_dibuang(): void
+    {
+        $this->actingAs($this->super)->put('/admin/pengaturan', [
+            'nama_acara' => 'Campus Expo', 'tanggal_acara' => '2027-01-18', 'lokasi' => 'SMA Negeri 1 Kandanghaur',
+            'peta_lokasi' => 'SMA Negeri 1 Kandanghaur', 'instagram' => '@campus.expo', 'tiktok' => '@expo_saka',
+        ])->assertSessionHasNoErrors();
+
+        $this->assertSame('campus.expo', Pengaturan::ambil('instagram'));
+        $this->assertSame('expo_saka', Pengaturan::ambil('tiktok'));
+        $this->get('/')
+            ->assertSee('href="https://www.instagram.com/campus.expo/"', false)
+            ->assertSee('href="https://www.tiktok.com/@expo_saka"', false);
+
+        $this->put('/admin/pengaturan', [
+            'nama_acara' => 'Campus Expo', 'tanggal_acara' => '2027-01-18', 'lokasi' => 'SMA Negeri 1 Kandanghaur',
+            'peta_lokasi' => 'SMA Negeri 1 Kandanghaur', 'instagram' => 'campus.expo', 'tiktok' => '',
+        ])->assertSessionHasNoErrors();
+
+        $this->get('/')->assertDontSee('tiktok.com', false);
     }
 
     public function test_foto_diunggah_dikecilkan_dan_disimpan_sebagai_webp(): void

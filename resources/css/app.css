@@ -199,6 +199,32 @@ html.tanpa-animasi [data-reveal] {
     animation: denyut 1.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
 }
 
+/* Pin peta jatuh ke titik sekolah saat bagian lokasi muncul (hanya transform + opacity, ringan). */
+html.js [data-reveal] .peta-pin {
+    opacity: 0;
+}
+
+html.js [data-reveal].terlihat .peta-pin {
+    animation: pin-jatuh 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.35s both;
+}
+
+html.tanpa-animasi [data-reveal] .peta-pin {
+    opacity: 1;
+    animation: none;
+}
+
+@keyframes pin-jatuh {
+    from {
+        opacity: 0;
+        transform: translateY(-32px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
 [data-paralaks] {
     will-change: transform;
 }
@@ -222,13 +248,19 @@ html.tanpa-animasi [data-reveal] {
         transform: none;
         transition: none;
     }
+
+    html.js [data-reveal] .peta-pin,
+    html.js [data-reveal].terlihat .peta-pin {
+        opacity: 1;
+        animation: none;
+    }
 }
 
 /* ---------- One page ---------- */
 
 /*
- * Daftar satu baris yang digeser ke samping. Kartu menempel (scroll snap) di tepi kiri, kartu
- * berikutnya sedikit mengintip sebagai tanda bisa digeser. Jalur melebar sampai tepi layar di HP.
+ * Daftar satu baris yang digeser ke samping. Tanpa scroll snap supaya geser otomatis bisa mengalir
+ * halus; kartu berikutnya sedikit mengintip sebagai tanda bisa digeser. Jalur melebar sampai tepi layar di HP.
  */
 .geser-jalur {
     --tepi: 1rem;
@@ -241,15 +273,12 @@ html.tanpa-animasi [data-reveal] {
     padding: 0.25rem var(--tepi) 0.75rem;
     overflow-x: auto;
     overscroll-behavior-x: contain;
-    scroll-snap-type: x mandatory;
-    scroll-padding-inline: var(--tepi);
     scrollbar-width: thin;
     scrollbar-color: var(--color-garis-tua) transparent;
 }
 
 .geser-jalur > * {
     min-width: 0;
-    scroll-snap-align: start;
 }
 
 .geser-jalur:focus-visible {
@@ -264,7 +293,6 @@ html.tanpa-animasi [data-reveal] {
     margin-inline: 0;
     padding-inline: 0;
     overflow: visible;
-    scroll-snap-type: none;
 }
 
 [data-geser].semua [data-geser-semua-ikon] {

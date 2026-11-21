@@ -50,7 +50,8 @@
 <body class="flex min-h-dvh flex-col">
     <a href="#isi" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-xl focus:bg-white focus:px-4 focus:py-3 focus:font-semibold">Langsung ke isi</a>
 
-    <header class="sticky top-0 z-30 border-b border-garis bg-krem/95 backdrop-blur" data-header>
+    {{-- Latar header solid (tanpa efek blur) supaya scroll tetap mulus di HP kelas bawah. --}}
+    <header class="sticky top-0 z-30 border-b border-garis bg-krem" data-header>
         <div class="wadah flex items-center justify-between gap-4 py-3">
             <a href="{{ $tautan('beranda') }}" class="flex flex-col leading-tight">
                 <span class="font-serif text-[21px] font-bold">Campus Expo</span>
@@ -103,11 +104,11 @@
                 </p>
                 <a href="{{ $tautan('lokasi') }}" class="inline-flex min-h-10 items-center gap-1.5 self-start text-sm font-semibold text-rose-terang hover:text-white"><x-ikon name="lokasi" class="size-4" /> Lihat peta lokasi</a>
                 <div class="flex flex-wrap gap-2">
-                    @if ($p['instagram'])
-                        <a href="https://www.instagram.com/{{ $p['instagram'] }}/" target="_blank" rel="noopener noreferrer" class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/25 px-3 text-sm hover:bg-white/10">
-                            <x-ikon name="instagram" /> {{ '@'.$p['instagram'] }}
+                    @foreach (\App\Models\Pengaturan::sosmed() as $akun)
+                        <a href="{{ $akun['url'] }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $akun['nama'] }} {{ $akun['akun'] }}" class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/25 px-3 text-sm hover:bg-white/10">
+                            <x-ikon :name="$akun['ikon']" /> {{ $akun['nama'] }}
                         </a>
-                    @endif
+                    @endforeach
                     @if ($p['email'])
                         <a href="mailto:{{ $p['email'] }}" class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/25 px-3 text-sm break-all hover:bg-white/10">
                             <x-ikon name="email" /> Email panitia

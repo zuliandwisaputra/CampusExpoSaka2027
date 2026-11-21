@@ -36,7 +36,8 @@
         </div>
 
         <div class="grid gap-4 sm:grid-cols-2">
-            <x-admin.input name="instagram" label="Instagram panitia" :value="$p['instagram']" maxlength="30" help="Username saja, tanpa @." />
+            <x-admin.input name="instagram" label="Instagram panitia" :value="$p['instagram']" maxlength="31" help="Username saja, contoh: campusexposaka_" />
+            <x-admin.input name="tiktok" label="TikTok panitia" :value="$p['tiktok']" maxlength="31" help="Username saja. Kosongkan kalau belum ada, tombolnya otomatis disembunyikan." />
             <x-admin.input name="email" label="Email panitia" type="email" :value="$p['email']" maxlength="150" />
         </div>
         <p class="bantuan -mt-2">Sesuai PRD, nomor HP panitia tidak ditampilkan di halaman publik.</p>

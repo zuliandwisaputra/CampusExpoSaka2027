@@ -86,5 +86,6 @@
     @include('publik.bagian.jadwal')
     @include('publik.bagian.galeri')
     @include('publik.bagian.faq')
+    @include('publik.bagian.sosmed')
     @include('publik.bagian.lokasi')
 @endsection

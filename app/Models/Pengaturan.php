@@ -26,6 +26,7 @@ class Pengaturan extends Model
         'penyelenggara' => 'Ikatan Keluarga Alumni SMA Negeri 1 Kandanghaur',
         'foto_beranda' => '',
         'instagram' => 'campusexposaka_',
+        'tiktok' => 'campusexposaka_',
         'email' => 'campusexposman1kandanghaur@gmail.com',
     ];
 
@@ -95,6 +96,28 @@ class Pengaturan extends Model
     public static function petaEmbedUrl(): string
     {
         return 'https://maps.google.com/maps?q='.rawurlencode(self::petaKueri()).'&z=16&output=embed';
+    }
+
+    /**
+     * Akun media sosial panitia yang sudah diisi, untuk footer dan bagian "Ikuti kami".
+     *
+     * @return list<array{nama: string, ikon: string, akun: string, url: string, ajakan: string}>
+     */
+    public static function sosmed(): array
+    {
+        $daftar = [];
+
+        if ($ig = self::ambil('instagram')) {
+            $daftar[] = ['nama' => 'Instagram', 'ikon' => 'instagram', 'akun' => '@'.$ig,
+                'url' => 'https://www.instagram.com/'.rawurlencode($ig).'/', 'ajakan' => 'Info dan pengumuman terbaru'];
+        }
+
+        if ($tiktok = self::ambil('tiktok')) {
+            $daftar[] = ['nama' => 'TikTok', 'ikon' => 'tiktok', 'akun' => '@'.$tiktok,
+                'url' => 'https://www.tiktok.com/@'.rawurlencode($tiktok), 'ajakan' => 'Video seputar Campus Expo'];
+        }
+
+        return $daftar;
     }
 
     public static function petaUrl(): string

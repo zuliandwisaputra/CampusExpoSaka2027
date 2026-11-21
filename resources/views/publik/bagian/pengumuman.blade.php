@@ -6,7 +6,7 @@
         @if ($pengumuman->isEmpty())
             @include('partials.kosong', ['ikon' => 'pengumuman', 'judul' => 'Belum ada pengumuman', 'teks' => 'Info terbaru dari panitia akan muncul di sini.'])
         @else
-            <x-geser id="geser-pengumuman" label="Daftar pengumuman" interval="5000">
+            <x-geser id="geser-pengumuman" label="Daftar pengumuman" kecepatan="50">
                 <x-slot:kepala><p class="text-sm text-redup">{{ $pengumuman->count() }} pengumuman</p></x-slot:kepala>
 
                 @foreach ($pengumuman as $item)

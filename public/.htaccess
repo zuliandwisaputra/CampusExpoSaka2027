@@ -31,3 +31,19 @@
     php_value memory_limit 512M
     php_value max_execution_time 120
 </IfModule>
+
+# Kompres HTML, CSS, JS, dan SVG sebelum dikirim (halaman one page jadi kira-kira 10x lebih kecil).
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/css text/javascript application/javascript application/json image/svg+xml
+</IfModule>
+
+# File hasil "npm run build" punya nama unik per versi (contoh: app-CQdWF-d0.js), jadi aman disimpan
+# browser selama setahun. Gambar disimpan seminggu. Halaman HTML tidak terkena aturan ini, jadi selalu segar.
+<IfModule mod_headers.c>
+    <FilesMatch "-[A-Za-z0-9_-]{8}\.(css|js|woff2)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    <FilesMatch "\.(webp|jpe?g|png|svg|ico)$">
+        Header set Cache-Control "public, max-age=604800"
+    </FilesMatch>
+</IfModule>

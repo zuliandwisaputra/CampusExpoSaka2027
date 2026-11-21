@@ -6,7 +6,7 @@ Tampilan memakai **Opsi A · Lanskap** (dipilih panitia), disusun dengan skill U
 
 ## Fitur versi 1
 
-Situs publik berbentuk **one page**: semua bagian ada di satu halaman dan menu di atas langsung menggulir ke bagiannya (menu yang sedang dibaca ikut ditandai). Daftar yang panjang (pengumuman, kampus, anggota, divisi, foto galeri) tampil satu baris yang digeser ke samping: di HP tinggal diusap, ada tombol panah kiri/kanan, dan daftar bergeser sendiri setiap beberapa detik. Geser otomatis berhenti saat pengunjung menyentuh daftar, mengarahkan mouse, atau menekan tombol jeda, dan mati kalau HP memakai mode "kurangi gerakan". Kampus dan anggota punya tombol "Lihat semua" untuk membuka semuanya sebagai grid. Tombol "kembali ke atas" muncul setelah pengunjung menggulir lebih dari satu layar. Panel admin tetap per halaman.
+Situs publik berbentuk **one page**: semua bagian ada di satu halaman dan menu di atas langsung menggulir ke bagiannya (menu yang sedang dibaca ikut ditandai). Daftar yang panjang (pengumuman, kampus, anggota, divisi, foto galeri) tampil satu baris yang digeser ke samping: di HP tinggal diusap, ada tombol panah kiri/kanan, dan daftar mengalir pelan sendiri (bolak-balik). Geser otomatis berhenti saat pengunjung menyentuh daftar (lanjut lagi 4 detik kemudian), mengarahkan mouse, atau menekan tombol jeda, dan mati kalau HP memakai mode "kurangi gerakan". Kecepatannya diatur lewat atribut `kecepatan` di komponen `<x-geser>` (piksel per detik, bawaan 70). Kampus dan anggota punya tombol "Lihat semua" untuk membuka semuanya sebagai grid. Tombol "kembali ke atas" muncul setelah pengunjung menggulir lebih dari satu layar. Bagian "Ikuti update Campus Expo" menampilkan Instagram dan TikTok panitia (diatur di admin → Pengaturan; yang dikosongkan otomatis disembunyikan), dan bagian lokasi memakai ilustrasi peta yang ringan sebelum peta Google dimuat. Panel admin tetap per halaman.
 
 | Situs publik (tanpa login, satu halaman) | Panel admin (`/admin`) |
 | --- | --- |
@@ -35,6 +35,7 @@ Pop-up punya alamat sendiri, jadi bisa dibagikan: `/#kampus/politeknik-negeri-in
 - Foto dikecilkan dan dikompres ke WebP saat upload memakai ekstensi GD bawaan PHP
 - Data halaman publik di-cache dan otomatis segar setiap kali admin mengubah data
 - Animasi masuk dan animasi saat scrolling yang ringan, otomatis mati kalau HP pengunjung memakai mode "kurangi gerakan"
+- Ringan di HP kelas bawah: geser otomatis memakai satu `requestAnimationFrame` yang berhenti total kalau tidak ada daftar yang terlihat, header tanpa efek blur, dan `public/.htaccess` mengompres HTML/CSS/JS (halaman ±384 KB jadi ±25 KB) serta menyimpan file build di cache browser
 
 ## Menjalankan di komputer sendiri
 

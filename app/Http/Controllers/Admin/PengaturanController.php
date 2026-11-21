@@ -19,6 +19,12 @@ class PengaturanController extends Controller
 
     public function update(Request $request): RedirectResponse
     {
+        // Username boleh diketik dengan @ di depannya; yang disimpan tanpa @.
+        $request->merge([
+            'instagram' => ltrim(trim((string) $request->input('instagram')), '@'),
+            'tiktok' => ltrim(trim((string) $request->input('tiktok')), '@'),
+        ]);
+
         $data = $request->validate([
             'nama_acara' => ['required', 'string', 'max:150'],
             'tagline' => ['nullable', 'string', 'max:150'],
@@ -31,6 +37,7 @@ class PengaturanController extends Controller
             'peta_lokasi' => ['required', 'string', 'max:200'],
             'penyelenggara' => ['nullable', 'string', 'max:150'],
             'instagram' => ['nullable', 'string', 'max:30', 'regex:/^[A-Za-z0-9._]+$/'],
+            'tiktok' => ['nullable', 'string', 'max:30', 'regex:/^[A-Za-z0-9._]+$/'],
             'email' => ['nullable', 'email', 'max:150'],
             'foto_beranda' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:'.config('campus.upload_max_kb')],
         ]);

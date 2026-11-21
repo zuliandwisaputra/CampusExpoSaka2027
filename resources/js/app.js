@@ -279,12 +279,38 @@ function setupDaftar() {
 }
 
 // Daftar satu baris yang digeser ke samping (kampus, anggota, divisi, pengumuman, galeri).
-// - Tombol panah menggeser satu layar; panah mati di ujung dan tersembunyi kalau semua isi sudah muat.
-// - Bergeser sendiri satu kartu setiap beberapa detik, lalu kembali ke awal setelah kartu terakhir.
-//   Berhenti sementara saat disentuh, digulir, diarahkan mouse, difokus keyboard, tidak terlihat
-//   di layar, atau saat pop-up terbuka. Tombol jeda menghentikannya sampai ditekan lagi.
-//   Kalau HP memakai mode "kurangi gerakan", geser otomatis mati sejak awal.
-// - Tombol "Lihat semua" mengubah daftar jadi grid biasa ke bawah, dan bisa diringkas lagi.
+// - Mengalir pelan terus-menerus, bukan lompat per kartu. Di ujung berhenti sebentar lalu berbalik arah.
+// - Semua daftar memakai SATU requestAnimationFrame bersama yang hanya berjalan selama ada daftar
+//   yang terlihat dan boleh bergerak. Kalau tidak ada, loop berhenti total (hemat baterai di HP).
+// - Berhenti saat disentuh/digulir (lanjut lagi beberapa detik kemudian), saat mouse di atasnya,
+//   saat difokus keyboard, saat tidak terlihat, atau saat pop-up terbuka. Tombol jeda menghentikannya.
+//   Mati sejak awal kalau HP memakai mode "kurangi gerakan".
+// - Tombol panah menggeser satu layar; "Lihat semua" mengubah daftar jadi grid biasa.
+const GESER_ISTIRAHAT_MS = 4000;
+const GESER_JEDA_UJUNG_MS = 1200;
+const pengaliran = new Set();
+let rafGeser = 0;
+let waktuGeser = 0;
+
+function putarGeser(waktu) {
+    const dt = waktuGeser ? Math.min(waktu - waktuGeser, 50) / 1000 : 0;
+    waktuGeser = waktu;
+    let adaYangJalan = false;
+    pengaliran.forEach((langkah) => {
+        if (langkah(dt, waktu)) adaYangJalan = true;
+    });
+    if (adaYangJalan) {
+        rafGeser = requestAnimationFrame(putarGeser);
+    } else {
+        rafGeser = 0;
+        waktuGeser = 0;
+    }
+}
+
+function bangunkanGeser() {
+    if (!rafGeser && pengaliran.size) rafGeser = requestAnimationFrame(putarGeser);
+}
+
 function setupGeser() {
     document.querySelectorAll('[data-geser]').forEach((geser) => {
         const jalur = geser.querySelector('[data-geser-jalur]');
@@ -295,7 +321,7 @@ function setupGeser() {
         const tombolJeda = geser.querySelector('[data-geser-jeda]');
         const tombolSemua = [...geser.querySelectorAll('[data-geser-semua]')];
         const tombolSemuaBawah = geser.querySelector('[data-geser-semua-bawah]');
-        const interval = parseInt(geser.dataset.geserInterval || '3500', 10);
+        const kecepatan = parseFloat(geser.dataset.geserKecepatan || '70'); // piksel per detik
         const gerak = () => (kurangiGerakan() ? 'auto' : 'smooth');
 
         let dijeda = kurangiGerakan();
@@ -304,20 +330,32 @@ function setupGeser() {
         let diarahkan = false;
         let difokus = false;
         let istirahatSampai = 0;
-        const istirahat = (ms = 8000) => {
-            istirahatSampai = Date.now() + ms;
-        };
+        let jedaUjungSampai = 0;
+        let mengalir = false;
+        let posisi = 0;
+        let arah = 1;
 
         const sisaGeser = () => jalur.scrollWidth - jalur.clientWidth;
+        const istirahat = (ms = GESER_ISTIRAHAT_MS) => {
+            istirahatSampai = performance.now() + ms;
+            mengalir = false;
+            setTimeout(bangunkanGeser, ms + 20);
+        };
+
+        // Status tombol panah (hanya diubah kalau memang berubah, supaya ringan saat mengalir).
         let antre = false;
+        const atur = (el, nama, nilai) => {
+            if (el.getAttribute(nama) !== nilai) el.setAttribute(nama, nilai);
+        };
         const perbarui = () => {
             antre = false;
             const sisa = sisaGeser();
-            grupTombol.hidden = semua || sisa <= 4;
+            const sembunyi = semua || sisa <= 4;
+            if (grupTombol.hidden !== sembunyi) grupTombol.hidden = sembunyi;
             if (tombolSemuaBawah) tombolSemuaBawah.hidden = !semua && sisa <= 4;
             panah.forEach((t) => {
                 const mentok = t.dataset.geserArah === '-1' ? jalur.scrollLeft <= 4 : jalur.scrollLeft >= sisa - 4;
-                t.setAttribute('aria-disabled', String(mentok));
+                atur(t, 'aria-disabled', String(mentok));
             });
         };
         const jadwalkan = () => {
@@ -326,24 +364,67 @@ function setupGeser() {
             requestAnimationFrame(perbarui);
         };
 
-        // Lebar satu kartu + jarak antar kartu, untuk geser otomatis satu kartu.
-        const satuKartu = () => {
-            const kartu = [...jalur.children].find((el) => !el.hidden);
-            const jarak = parseFloat(getComputedStyle(jalur).columnGap) || 0;
-            return kartu ? kartu.getBoundingClientRect().width + jarak : jalur.clientWidth;
-        };
+        // Satu langkah geser otomatis per frame. Mengembalikan false kalau daftar ini sedang tidak bergerak.
+        const langkah = (dt, sekarang) => {
+            const boleh = !dijeda && !semua && terlihat && !diarahkan && !difokus && !document.hidden
+                && sekarang >= istirahatSampai && !document.querySelector('dialog[open]');
+            const sisa = boleh ? sisaGeser() : 0;
+            if (!boleh || sisa <= 4) {
+                mengalir = false;
+                return false;
+            }
+            if (!mengalir) {
+                mengalir = true;
+                posisi = Math.min(jalur.scrollLeft, sisa);
+            }
+            if (sekarang < jedaUjungSampai) return true;
 
+            posisi += arah * kecepatan * dt;
+            if (posisi >= sisa) {
+                posisi = sisa;
+                arah = -1;
+                jedaUjungSampai = sekarang + GESER_JEDA_UJUNG_MS;
+            } else if (posisi <= 0) {
+                posisi = 0;
+                arah = 1;
+                jedaUjungSampai = sekarang + GESER_JEDA_UJUNG_MS;
+            }
+            jalur.scrollLeft = posisi;
+            return true;
+        };
+        pengaliran.add(langkah);
+
+        // Tombol panah. Kanan: kartu pertama yang terpotong di kanan jadi kartu paling kiri.
+        // Kiri: mundur satu layar, rata ke awal kartu. Jadi tidak ada kartu yang terlewat.
         panah.forEach((t) => {
             t.addEventListener('click', () => {
                 istirahat();
                 if (t.getAttribute('aria-disabled') === 'true') return;
                 const gaya = getComputedStyle(jalur);
-                const lebar = jalur.clientWidth - parseFloat(gaya.paddingLeft) - parseFloat(gaya.paddingRight);
-                jalur.scrollBy({ left: Number(t.dataset.geserArah) * lebar, behavior: gerak() });
+                const tepi = parseFloat(gaya.paddingLeft);
+                const lebar = jalur.clientWidth - tepi - parseFloat(gaya.paddingRight);
+                const jarak = parseFloat(gaya.columnGap) || 0;
+                const kini = jalur.scrollLeft;
+                const kiriJalur = jalur.getBoundingClientRect().left;
+                const kartu = [...jalur.children].filter((el) => !el.hidden).map((el) => {
+                    const r = el.getBoundingClientRect();
+                    const awal = r.left - kiriJalur + kini - tepi;
+                    return { awal, akhir: awal + r.width };
+                });
+
+                let tujuan;
+                if (t.dataset.geserArah === '1') {
+                    const terpotong = kartu.find((k) => k.akhir > kini + lebar + 1 && k.awal > kini + 4);
+                    tujuan = terpotong ? terpotong.awal : sisaGeser();
+                } else {
+                    const mundur = kartu.filter((k) => k.awal >= kini - lebar - jarak - 2 && k.awal < kini - 1);
+                    tujuan = mundur.length ? mundur[0].awal : 0;
+                }
+                jalur.scrollTo({ left: Math.max(0, Math.min(tujuan, sisaGeser())), behavior: gerak() });
             });
         });
 
-        // Tombol jeda / putar geser otomatis.
+        // Tombol jeda / putar.
         const tampilkanJeda = () => {
             if (!tombolJeda) return;
             tombolJeda.setAttribute('aria-label', dijeda ? 'Putar geser otomatis' : 'Jeda geser otomatis');
@@ -354,22 +435,14 @@ function setupGeser() {
             dijeda = !dijeda;
             istirahatSampai = 0;
             tampilkanJeda();
+            bangunkanGeser();
         });
         tampilkanJeda();
-
-        // Geser otomatis.
-        setInterval(() => {
-            if (dijeda || semua || !terlihat || diarahkan || difokus || document.hidden) return;
-            if (Date.now() < istirahatSampai || document.querySelector('dialog[open]')) return;
-            const sisa = sisaGeser();
-            if (sisa <= 4) return;
-            if (jalur.scrollLeft >= sisa - 4) jalur.scrollTo({ left: 0, behavior: gerak() });
-            else jalur.scrollBy({ left: satuKartu(), behavior: gerak() });
-        }, interval);
 
         if ('IntersectionObserver' in window) {
             new IntersectionObserver(([e]) => {
                 terlihat = e.isIntersecting;
+                if (terlihat) bangunkanGeser();
             }, { threshold: 0.5 }).observe(jalur);
         } else {
             terlihat = true;
@@ -383,12 +456,15 @@ function setupGeser() {
         });
         geser.addEventListener('pointerleave', () => {
             diarahkan = false;
+            bangunkanGeser();
         });
         geser.addEventListener('focusin', (e) => {
             difokus = e.target.matches(':focus-visible');
         });
         geser.addEventListener('focusout', (e) => {
-            if (!geser.contains(e.relatedTarget)) difokus = false;
+            if (geser.contains(e.relatedTarget)) return;
+            difokus = false;
+            bangunkanGeser();
         });
 
         // Tombol "Lihat semua" / "Tampilkan ringkas".
@@ -396,6 +472,8 @@ function setupGeser() {
             semua = nilai;
             geser.classList.toggle('semua', semua);
             jalur.scrollLeft = 0;
+            posisi = 0;
+            arah = 1;
             tombolSemua.forEach((t) => {
                 t.setAttribute('aria-expanded', String(semua));
                 if (t.hasAttribute('data-geser-ringkas')) t.hidden = !semua;
@@ -403,6 +481,7 @@ function setupGeser() {
                 if (teks) teks.textContent = semua ? 'Tampilkan ringkas' : teks.dataset.awal;
             });
             perbarui();
+            bangunkanGeser();
         };
         tombolSemua.forEach((t) => {
             t.addEventListener('click', () => {
@@ -416,11 +495,17 @@ function setupGeser() {
         window.addEventListener('resize', jadwalkan);
         geser.keAwal = () => {
             jalur.scrollLeft = 0;
+            posisi = 0;
+            arah = 1;
             istirahat();
             perbarui();
         };
         perbarui();
     });
+
+    document.querySelectorAll('dialog').forEach((d) => d.addEventListener('close', bangunkanGeser));
+    document.addEventListener('visibilitychange', bangunkanGeser);
+    bangunkanGeser();
 }
 
 // Tombol "kembali ke atas" muncul setelah pengunjung menggulir lebih dari satu layar.

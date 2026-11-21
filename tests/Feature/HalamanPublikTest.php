@@ -173,6 +173,14 @@ class HalamanPublikTest extends TestCase
         $this->assertStringNotContainsString('<iframe', $tanpaNoscript);
     }
 
+    public function test_sosmed_instagram_dan_tiktok_panitia_tampil(): void
+    {
+        $this->get('/')
+            ->assertSee('Ikuti update Campus Expo')
+            ->assertSee('href="https://www.instagram.com/campusexposaka_/" target="_blank" rel="noopener noreferrer"', false)
+            ->assertSee('href="https://www.tiktok.com/@campusexposaka_" target="_blank" rel="noopener noreferrer"', false);
+    }
+
     public function test_nama_pembuat_website_tampil_di_footer(): void
     {
         $this->get('/')
