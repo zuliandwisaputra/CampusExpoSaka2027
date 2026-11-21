@@ -122,6 +122,14 @@ Kalau upload foto besar masih gagal, ubah langsung `php.ini` (di Laragon: menu *
 
 Peta di beranda memakai isian **Lokasi di Google Maps** pada menu Pengaturan acara. Supaya titiknya tepat, isi dengan koordinat sekolah (di Google Maps, tekan lama titik SMAN 1 Kandanghaur lalu salin angkanya). Peta baru dimuat saat pengunjung mengetuk "Tampilkan peta interaktif", jadi beranda tetap ringan.
 
+### Lupa email atau password admin
+
+```bash
+php artisan admin:reset-password
+```
+
+Perintah ini menampilkan email akun super admin, lalu membuat password baru (acak, 16 karakter) yang hanya ditampilkan sekali di terminal. Akun yang nonaktif ikut diaktifkan kembali. Untuk akun koordinator, tambahkan emailnya: `php artisan admin:reset-password email@koordinator`. Setelah login, ganti password lewat menu **Akun admin**.
+
 ## Pasang di shared hosting
 
 1. Pastikan hosting menyediakan **PHP 8.3**, MySQL/MariaDB, ekstensi GD, dan SSL. Akses SSH/terminal sangat membantu.

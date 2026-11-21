@@ -13,6 +13,7 @@ use Database\Seeders\KontenAwalSeeder;
 use Database\Seeders\PanitiaSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -57,6 +58,27 @@ class AdminAksesTest extends TestCase
 
         $this->post('/admin/login', ['email' => 'super@test.id', 'password' => 'rahasia123'])->assertRedirect('/admin');
         $this->assertAuthenticatedAs($this->super);
+    }
+
+    public function test_perintah_reset_password_admin_yang_lupa(): void
+    {
+        $this->super->update(['aktif' => false]);
+
+        Artisan::call('admin:reset-password', ['--no-interaction' => true]);
+        $output = Artisan::output();
+
+        $this->assertStringContainsString('super@test.id', $output);
+        $this->assertMatchesRegularExpression('/Password : (\S{16})/', $output);
+        preg_match('/Password : (\S{16})/', $output, $cocok);
+
+        $this->post('/admin/login', ['email' => 'super@test.id', 'password' => 'rahasia123'])->assertSessionHasErrors('email');
+        $this->post('/admin/login', ['email' => 'super@test.id', 'password' => $cocok[1]])->assertRedirect('/admin');
+        $this->assertAuthenticatedAs($this->super->fresh());
+    }
+
+    public function test_reset_password_email_yang_tidak_ada_ditolak(): void
+    {
+        $this->artisan('admin:reset-password', ['email' => 'tidak.ada@test.id'])->assertFailed();
     }
 
     public function test_percobaan_login_dibatasi(): void
